@@ -157,7 +157,7 @@ h1 { margin: 2px 0 0; font-size: 32px; line-height: 1.1; font-weight: 700; lette
 .habh .hs { font-size: 13px; color: var(--muted); }
 .habh .hs.on { color: var(--link); }
 .opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-.opt { min-height: 56px; padding: 6px 4px; border-radius: 12px; border: 1px solid var(--line); background: transparent; color: var(--ink);
+.opt { position: relative; min-height: 56px; padding: 6px 4px; border-radius: 12px; border: 1px solid var(--line); background: transparent; color: var(--ink);
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1.2; }
 .opt b { font-size: 15px; font-weight: 600; }
 .opt small { font-size: 12px; color: var(--muted); }
@@ -166,7 +166,9 @@ h1 { margin: 2px 0 0; font-size: 32px; line-height: 1.1; font-weight: 700; lette
 .opt[aria-pressed="true"][data-v="min"] { background: var(--acc-soft2); border-color: var(--min-line); color: var(--acc-text); }
 .opt[aria-pressed="true"][data-v="min"] small { color: var(--acc-text); }
 .opt[aria-pressed="true"][data-v="skip"] { background: var(--skip); border-color: var(--skip); }
-.opt:disabled { opacity: .45; }
+.opt:disabled, .opt.off { opacity: .45; }
+/* «Позже» сразу открывает выбор времени */
+.tpick { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; font-size: 16px; -webkit-appearance: none; appearance: none; border: 0; padding: 0; }
 
 /* итог дня */
 .sumcard { margin-top: 30px; display: flex; flex-direction: column; gap: 14px; padding: 16px; width: 100%; text-align: left; color: var(--ink); }
@@ -452,6 +454,18 @@ const HABITS = {
 };
 const habitDef = (h, plan) => h === "tr" ? HABITS.tr[plan] : HABITS[h];
 const optLabel = o => o.join(" · ");
+// подпись отметки; у «Позже» — выбранное время
+function habitText(h, m, plan) {
+  const def = habitDef(h, plan), v = m[h];
+  if (!v || !def) return "";
+  if (m[h + "Mins"]) return `${fmtDur(m[h + "Mins"])} · своё время`;
+  return h === "off" && v === "skip" && m.offTime ? `Позже · ${m.offTime}` : optLabel(def.opts[v]);
+}
+// «Пропуск» у Python и тренировки: пропустил или сколько минут потратил.
+// Своё время от полной нормы засчитывается как «Да», меньше — как минимум.
+const FULL_MIN = { py: 40, press: 30, gym: 60 };
+const fullMin = (h, plan) => h === "py" ? FULL_MIN.py : FULL_MIN[plan] || 30;
+const DURATIONS = Array.from({ length: 36 }, (_, i) => (i + 1) * 5);
 
 // ---------- состояние ----------
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -666,17 +680,29 @@ function renderToday() {
   html += `<div class="sec"><h2>Привычки</h2></div><div class="card habs">`;
   const habs = ["py", ...(HABITS.tr[plan] ? ["tr"] : []), "off"];
   habs.forEach(h => {
-    const def = habitDef(h, plan), v = m[h];
+    const def = habitDef(h, plan), v = m[h], mins = m[h + "Mins"];
+    const spick = () => `<label class="opt ${isFuture ? "off" : ""}" data-v="${mins ? v : "skip"}" aria-pressed="${v === "skip" || !!mins}">
+        <b>${mins ? fmtDur(mins) : "Пропуск"}</b><small>${mins ? "своё время" : v === "skip" ? "пропустил" : "или своё время"}</small>
+        <select class="tpick" data-spick="${h}" aria-label="${def.name}: пропустил или сколько потратил" ${isFuture ? "disabled" : ""}>
+          <option value="" ${!mins && v !== "skip" ? "selected" : ""} disabled>Как было?</option>
+          <option value="skip" ${v === "skip" && !mins ? "selected" : ""}>Пропустил</option>
+          ${DURATIONS.map(d => `<option value="${d}" ${mins === d ? "selected" : ""}>Потратил ${fmtDur(d)}</option>`).join("")}
+        </select></label>`;
     html += `<div class="hab"><div class="habh">${ic(def.icon, 20)}<span class="hn">${def.name}</span>
-        <span class="hs ${v && v !== "skip" ? "on" : ""}">${v ? optLabel(def.opts[v]) : "не отмечено"}</span></div>
-      <div class="opts">${Object.entries(def.opts).map(([val, o]) =>
-        `<button class="opt" data-h="${h}" data-v="${val}" aria-pressed="${v === val}" ${isFuture ? "disabled" : ""}><b>${o[0]}</b>${o[1] ? `<small>${o[1]}</small>` : ""}</button>`).join("")}</div></div>`;
+        <span class="hs ${v && v !== "skip" ? "on" : ""}">${v ? esc(habitText(h, m, plan)) : "не отмечено"}</span></div>
+      <div class="opts">${Object.entries(def.opts).map(([val, o]) => h !== "off" && val === "skip" ? spick()
+        : h !== "off" && mins ? `<button class="opt" data-h="${h}" data-v="${val}" aria-pressed="false" ${isFuture ? "disabled" : ""}><b>${o[0]}</b>${o[1] ? `<small>${o[1]}</small>` : ""}</button>`
+        : h === "off" && val === "skip"
+        ? `<label class="opt ${isFuture ? "off" : ""}" data-v="skip" aria-pressed="${v === val}"><b>${m.offTime && v === "skip" ? m.offTime : o[0]}</b><small>${m.offTime && v === "skip" ? "отошёл" : "указать время"}</small>
+            <input class="tpick" type="time" data-tpick="off" value="${v === "skip" && m.offTime ? m.offTime : ""}" aria-label="Во сколько отошёл от компьютера" ${isFuture ? "disabled" : ""}></label>`
+        : `<button class="opt" data-h="${h}" data-v="${val}" aria-pressed="${v === val}" ${isFuture ? "disabled" : ""}><b>${o[0]}</b>${o[1] ? `<small>${o[1]}</small>` : ""}</button>`).join("")}</div></div>`;
   });
   html += `</div>`;
   if (isFuture) html += `<p class="note-s">Отмечать можно сегодня и прошедшие дни.</p>`;
 
   const tiles = [[`${doneCnt} из ${tpl.blocks.length}`, "План", false],
-    ...habs.map(h => { const def = habitDef(h, plan), v = m[h]; return [v ? def.opts[v][0] : "нет", def.short || def.name, !v]; })];
+    ...habs.map(h => { const def = habitDef(h, plan), v = m[h];
+      return [!v ? "нет" : m[h + "Mins"] ? fmtDur(m[h + "Mins"]) : h === "off" && v === "skip" && m.offTime ? m.offTime : def.opts[v][0], def.short || def.name, !v]; })];
   html += `<button class="card sumcard" data-act="sheet"><span class="sh"><b>Итог дня</b><span>Открыть${ic("chevR", 18)}</span></span>
     <span class="tiles" style="grid-template-columns:repeat(${tiles.length},minmax(0,1fr))">${tiles.map(([v, l, no]) =>
       `<span class="tile"><b class="${no ? "no" : ""}">${esc(v)}</b><span>${esc(l)}</span></span>`).join("")}</span></button>`;
@@ -702,7 +728,7 @@ function dayData(k) {
     exNotes: exItems.filter(x => em[x.id]?.n).map(x => [x.n, em[x.id].n])
   };
 }
-const habitLabel = (h, v, plan) => { const def = habitDef(h, plan); return v && def ? optLabel(def.opts[v]) : "—"; };
+const habitLabel = (h, m, plan) => habitText(h, m, plan) || "—";
 
 function sheetHtml(k) {
   const r = dayData(k), dotc = { done: "var(--acc)", min: "var(--min)", skip: "var(--ring)" };
@@ -710,7 +736,7 @@ function sheetHtml(k) {
   if (r.exItems.length) rows.push([TYPE_ICON[r.plan], "Упражнения", `<b>${r.exDone} из ${r.exItems.length}</b>`]);
   ["py", ...(HABITS.tr[r.plan] ? ["tr"] : []), "off"].forEach(h => {
     const def = habitDef(h, r.plan), v = r.m[h];
-    rows.push([def.icon, def.short || def.name, v ? `<b><i style="background:${dotc[v]}"></i>${esc(optLabel(def.opts[v]))}</b>` : `<b class="no">не отмечено</b>`]);
+    rows.push([def.icon, def.short || def.name, v ? `<b><i style="background:${dotc[v]}"></i>${esc(habitText(h, r.m, r.plan))}</b>` : `<b class="no">не отмечено</b>`]);
   });
   const notes = [...r.bNotes, ...r.exNotes];
   return `<div class="shade" data-act="sheetClose"></div>
@@ -736,9 +762,9 @@ function reportText(k) {
     L.push("", `Тренировка: ${r.exDone} из ${r.exItems.length}`);
     r.exItems.forEach(x => L.push(`${em[x.id]?.d ? "✅" : "▫️"} ${x.n} (${x.t})${em[x.id]?.n ? " — " + em[x.id].n : ""}`));
   }
-  L.push("", `Python: ${habitLabel("py", r.m.py)}`);
-  if (HABITS.tr[r.plan]) L.push(`Тренировка: ${habitLabel("tr", r.m.tr, r.plan)}`);
-  L.push(`Отход от компьютера: ${habitLabel("off", r.m.off)}`);
+  L.push("", `Python: ${habitLabel("py", r.m, r.plan)}`);
+  if (HABITS.tr[r.plan]) L.push(`Тренировка: ${habitLabel("tr", r.m, r.plan)}`);
+  L.push(`Отход от компьютера: ${habitLabel("off", r.m, r.plan)}`);
   if (r.m.light) L.push("Лёгкий день");
   if (r.m.note) L.push("", `Заметка: ${r.m.note}`);
   return L.join("\n");
@@ -794,12 +820,13 @@ function renderTrain() {
 
 function countPeriod(from, to) {
   const tk = todayKey();
-  const r = { days: 0, py: 0, pyMin: 0, gym: 0, gymMin: 0, gymPlan: 0, press: 0, pressMin: 0, pressPlan: 0, off: 0, offMin: 0, bDays: 0, bDone: 0, bTotal: 0, ex: 0 };
+  const r = { days: 0, py: 0, pyMin: 0, pyTime: 0, gym: 0, gymMin: 0, gymPlan: 0, press: 0, pressMin: 0, pressPlan: 0, off: 0, offMin: 0, bDays: 0, bDone: 0, bTotal: 0, ex: 0 };
   for (let d = new Date(from); keyOf(d) <= keyOf(to) && keyOf(d) <= tk; d = addDays(d, 1)) {
     const k = keyOf(d), m = mark(k), p = planOf(k);
     r.days++;
     if (m.py === "done" || m.py === "min") r.py++;
     if (m.py === "min") r.pyMin++;
+    r.pyTime += m.pyMins || (m.py === "done" ? FULL_MIN.py : m.py === "min" ? 10 : 0);
     const tr = m.tr === "done" || m.tr === "min";
     if (p === "gym") { r.gymPlan++; if (tr) r.gym++; if (m.tr === "min") r.gymMin++; }
     if (p === "press") { r.pressPlan++; if (tr) r.press++; if (m.tr === "min") r.pressMin++; }
@@ -819,7 +846,8 @@ function statRow(icn, label, done, min, total, extra) {
 }
 function statsBlock(r) {
   const pressX = [r.pressMin ? `из них 10 мин: ${r.pressMin}` : "", r.ex ? `упражнений отмечено: ${r.ex}` : ""].filter(Boolean).join(", ");
-  return statRow("code", "Python, дней", r.py, r.pyMin, r.days, r.pyMin ? `из них минимум: ${r.pyMin}` : "") +
+  const pyX = [r.pyMin ? `из них минимум: ${r.pyMin}` : "", r.pyTime ? `всего около ${fmtDur(r.pyTime)}` : ""].filter(Boolean).join(", ");
+  return statRow("code", "Python, дней", r.py, r.pyMin, r.days, pyX) +
     statRow("dumbbell", "Зал", r.gym, r.gymMin, r.gymPlan, r.gymMin ? `из них лёгкая: ${r.gymMin}` : "") +
     statRow("activity", "Пресс", r.press, r.pressMin, r.pressPlan, pressX) +
     statRow("monitorOff", "Отход от компьютера", r.off + r.offMin, r.offMin, r.days, r.offMin ? `вовремя: ${r.off}, до 23:45: ${r.offMin}` : "") +
@@ -981,6 +1009,8 @@ app.addEventListener("click", e => {
   if (el.classList.contains("opt")) {
     const m = editMark(viewDay);
     m[el.dataset.h] = m[el.dataset.h] === el.dataset.v ? undefined : el.dataset.v;
+    if (el.dataset.h === "off") delete m.offTime;
+    else delete m[el.dataset.h + "Mins"];
     m.plan = planOf(viewDay);
     save(); renderToday(); return;
   }
@@ -1065,7 +1095,31 @@ app.addEventListener("input", e => {
   saveSoon();
 });
 
+// время «Позже»: пока колесо выбора открыто, только запоминаем, перерисовываем после закрытия
+function commitOff(val, final) {
+  const m = editMark(viewDay);
+  if (val) { m.off = "skip"; m.offTime = val; }
+  else if (final && m.off !== "skip") { m.off = "skip"; delete m.offTime; }
+  m.plan = planOf(viewDay);
+  save();
+  if (final) renderToday();
+}
+app.addEventListener("focusout", e => {
+  if (e.target.dataset.tpick) commitOff(e.target.value, true);
+  if (e.target.dataset.spick) renderToday();
+});
+function commitSkip(h, val) {
+  if (!val) return;
+  const m = editMark(viewDay), plan = planOf(viewDay);
+  if (val === "skip") { m[h] = "skip"; delete m[h + "Mins"]; }
+  else { const mins = +val; m[h + "Mins"] = mins; m[h] = mins >= fullMin(h, plan) ? "done" : "min"; }
+  m.plan = plan;
+  save();
+}
+
 app.addEventListener("change", e => {
+  if (e.target.dataset.tpick) { commitOff(e.target.value, document.activeElement !== e.target); return; }
+  if (e.target.dataset.spick) { commitSkip(e.target.dataset.spick, e.target.value); if (document.activeElement !== e.target) renderToday(); return; }
   if (e.target.id === "planSel") {
     const m = editMark(viewDay);
     m.plan = e.target.value;
