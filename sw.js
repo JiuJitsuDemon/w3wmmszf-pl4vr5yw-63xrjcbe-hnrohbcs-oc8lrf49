@@ -1,5 +1,5 @@
 // Офлайн-кэш: приложение открывается без интернета, обновления подтягиваются в фоне.
-const CACHE = "rezhim-v6";
+const CACHE = "rezhim-v7";
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {

@@ -313,6 +313,30 @@ h1 { margin: 2px 0 0; font-size: 32px; line-height: 1.1; font-weight: 700; lette
 .bcard .bigbtn { height: 50px; font-size: 16px; }
 .bcard .secbtn { margin-top: 8px; border: 0; background: transparent; }
 
+/* Gemini: запись словами и разбор недели */
+.aibtn { margin-top: 12px; width: 100%; height: 48px; border-radius: 14px; border: 1px solid var(--acc-line); background: var(--acc-soft); color: var(--link);
+  font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.ai { margin-top: 12px; padding: 14px; }
+.ai .aih { display: flex; align-items: center; gap: 8px; }
+.ai .aih .ic { color: var(--link); }
+.ai .aih b { flex: 1; font-size: 16px; }
+.ai .ta { margin-top: 10px; }
+.ai .bigbtn { margin-top: 10px; height: 50px; font-size: 16px; }
+.ai .bigbtn:disabled { opacity: .6; }
+.draft { margin: 12px 0 0; padding: 0; list-style: none; background: var(--field); border-radius: 12px; }
+.draft li { padding: 10px 12px; font-size: 15px; line-height: 1.35; overflow-wrap: anywhere; }
+.draft li + li { border-top: 1px solid var(--line); }
+.reply { margin-top: 10px; font-size: 14px; color: var(--acc-text); }
+.err { margin-top: 10px; display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; background: var(--warn-bg); color: var(--warn); font-size: 14px; line-height: 1.4; }
+.err .ic { margin-top: 1px; }
+.btn2.ai2 { margin-top: 10px; }
+.md { font-size: 15px; line-height: 1.5; color: var(--ink2); }
+.md p { margin: 8px 0 0; }
+.md ul { margin: 6px 0 0; padding-left: 18px; }
+.md li + li { margin-top: 4px; }
+.md b { color: var(--ink); }
+a.secbtn { text-decoration: none; }
+
 /* таб-бар */
 nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
   background: var(--card); border-top: 1px solid var(--line); padding: 6px 4px env(safe-area-inset-bottom); }
@@ -374,7 +398,10 @@ const I = {
   share: '<path d="M12 2v13"/><path d="m16 6-4-4-4 4"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>',
   info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
   download: '<path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/>',
-  upload: '<path d="M12 3v12"/><path d="m17 8-5-5-5 5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'
+  upload: '<path d="M12 3v12"/><path d="m17 8-5-5-5 5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>',
+  sparkles: '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>',
+  mic: '<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>',
+  key: '<path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/>'
 };
 const ic = (n, s = 18, cls = "", sw = 2) =>
   `<svg class="ic ${cls}" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n] || I.dot}</svg>`;
@@ -478,7 +505,10 @@ function load() {
     marks: s.marks || {},
     templates: s.templates || clone(DEFAULT_TEMPLATES),
     week: Array.isArray(s.week) && s.week.length === 7 ? s.week : DEFAULT_WEEK.slice(),
-    programs: s.programs || clone(DEFAULT_PROGRAMS)
+    programs: s.programs || clone(DEFAULT_PROGRAMS),
+    reviews: s.reviews || {},
+    lastBackup: s.lastBackup || "",   // день последней сохранённой копии
+    backupSkip: s.backupSkip || ""    // день, когда напоминание отложено
   };
   // данные из первой версии: у пунктов не было id и связи с привычками
   for (const t of Object.values(st.templates)) for (const b of t.blocks) {
@@ -542,6 +572,9 @@ let sheetOpen = false;    // шторка «Итог дня»
 let trType = null;        // программа на экране «Тренировка», если выбрана вручную
 let trEdit = false;
 let tplWarn = "";
+// Gemini
+let aiOpen = false, aiText = "", aiBusy = false, aiErr = "", aiDraft = null;
+let revBusy = false, revErr = "";
 let toastTimer;
 function toast(title, sub) {
   const el = document.getElementById("toast");
@@ -657,7 +690,11 @@ function renderToday() {
 
   let html = dayHeader(k);
   if (isToday && yNeed) html += `<div class="banner">${ic("calCheck", 20)}<span>Вчерашний день ещё не отмечен</span><button class="softbtn" data-act="yesterday">Отметить</button></div>`;
+  if (isToday && needBackup()) html += `<div class="banner">${ic("download", 20)}<span>Сохранить копию за сегодня?<br><small class="muted">Лучше в iCloud Drive, тогда она не потеряется</small></span>
+    <button class="softbtn" data-act="backupSkip" aria-label="Не сегодня" style="background:none;padding:0 8px;color:var(--muted)">${ic("x", 18)}</button>
+    <button class="softbtn" data-act="export">Сохранить</button></div>`;
   if (isToday) html += nowCard(k, light);
+  if (!isFuture) html += aiCard(k);
 
   html += `<div class="sec"><h2>План дня</h2><span class="cnt">${doneCnt} из ${tpl.blocks.length}</span></div>${segbar(doneCnt, tpl.blocks.length)}`;
   groupsOf(tpl.blocks).forEach((g, gi) => {
@@ -866,6 +903,7 @@ function renderStats() {
   html += `<div class="sec" style="margin-top:28px"><h2>Неделя</h2></div><div class="card pcard"><div class="pnav">
       <button class="nbtn" data-act="wprev" aria-label="Предыдущая неделя">${ic("chevL", 20)}</button><span>${fmtW}</span>
       <button class="nbtn" data-act="wnext" aria-label="Следующая неделя">${ic("chevR", 20)}</button></div>${statsBlock(w)}</div>`;
+  html += reviewCard(keyOf(weekStart), w.days);
   html += `<div class="sec" style="margin-top:28px"><h2>Месяц</h2></div><div class="card pcard m"><div class="pnav">
       <button class="nbtn" data-act="mprev" aria-label="Предыдущий месяц">${ic("chevL", 20)}</button><span>${MONTHS_NOM[monthCur.getMonth()]} ${monthCur.getFullYear()}</span>
       <button class="nbtn" data-act="mnext" aria-label="Следующий месяц">${ic("chevR", 20)}</button></div>${statsBlock(mo)}
@@ -909,9 +947,19 @@ function renderSettings() {
     <p class="note-s" style="margin:10px 2px 2px">Время уведомлений меняется в Календаре iPhone: событие, «Изменить», «Сохранить для будущих событий».</p></div>`;
 
   html += `<div class="sec"><h2>Резервная копия</h2></div><div class="card bcard">
-    <p>Отметки, заметки и программа хранятся только на этом телефоне. Раз в неделю сохраняй копию в «Файлы».</p>
+    <p>Отметки, заметки и программа хранятся только на этом телефоне. Каждый день приложение предложит сохранить копию: выбери «Сохранить в Файлы», лучше в папку iCloud Drive.
+      ${state.lastBackup ? `<br><span class="muted">Последняя копия: ${dayTitle(state.lastBackup)}</span>` : ""}</p>
     <button class="bigbtn" data-act="export">${ic("download", 20)}Сохранить копию</button>
     <button class="secbtn" data-act="import">${ic("upload", 18)}Восстановить из файла</button></div>`;
+  const gk = getKey();
+  html += `<div class="sec"><h2>Gemini</h2></div><div class="card bcard">
+    <p>Нужен для «Записать словами» и «Разбора недели». Ключ бесплатный: открой Google AI Studio, нажми «Get API key», затем «Create API key», скопируй и вставь сюда.</p>
+    <a class="secbtn" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="border:1px solid var(--line);background:var(--card);margin-top:0">${ic("key", 18)}Получить ключ</a>
+    ${gk ? `<p style="margin:14px 0 0">Ключ сохранён: ••••${esc(gk.slice(-4))}</p>
+        <button class="secbtn" data-act="keyDel" style="border:1px solid var(--line);background:var(--card)">Удалить ключ</button>`
+      : `<input class="fld" id="gkey" type="password" placeholder="Вставь ключ" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" style="margin-top:12px">
+        <button class="bigbtn" data-act="keySave" style="margin-top:8px">Сохранить ключ</button>`}
+    <p class="note-s" style="margin:12px 2px 0">Ключ хранится только на этом телефоне и не попадает в резервную копию. В Google уходят только отметки и заметки того дня или недели, которые ты разбираешь. На бесплатном тарифе Google может использовать их для улучшения своих продуктов.</p></div>`;
   html += `<p class="note-s" style="margin-top:18px">Уведомления приходят из Календаря iPhone, будильник из «Здоровья», раздел «Сон».</p>`;
   app.innerHTML = html;
 }
@@ -952,12 +1000,19 @@ async function exportData() {
   const data = JSON.stringify({ app: "rezhim", version: 2, exported: new Date().toISOString(), ...state }, null, 1);
   const name = `rezhim-${todayKey()}.json`;
   const file = new File([data], name, { type: "application/json" });
+  const done = () => { state.lastBackup = todayKey(); save(); render(); toast("Копия сохранена", name); };
   try {
-    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name }); return; }
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name }); done(); return; }
   } catch (e) { if (e.name === "AbortError") return; }
   const a = document.createElement("a");
   a.href = URL.createObjectURL(file); a.download = name; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  done();
+}
+// ежедневное напоминание о копии: только если есть что сохранять
+function needBackup() {
+  const tk = todayKey();
+  return state.lastBackup !== tk && state.backupSkip !== tk && Object.keys(state.marks).length > 0;
 }
 
 function toggleBlock(id) {
@@ -993,6 +1048,241 @@ function toggleEx(id, type) {
   save(); renderTrain();
 }
 
+// ---------- Gemini ----------
+// ключ хранится отдельно от данных и не попадает в резервную копию
+const GKEY = "rezhim.gkey";
+const getKey = () => { try { return localStorage.getItem(GKEY) || ""; } catch (e) { return ""; } };
+const setKey = v => { try { v ? localStorage.setItem(GKEY, v) : localStorage.removeItem(GKEY); } catch (e) {} };
+// если основная модель недоступна или упёрлась в лимит, пробуем следующую
+const AI_MODELS = ["gemini-3.8-flash", "gemini-3.5-flash-lite", "gemini-2.5-flash"];
+
+async function gemini(system, prompt, json) {
+  const key = getKey();
+  if (!key) throw new Error("nokey");
+  let last = null;
+  for (const model of AI_MODELS) {
+    let res;
+    try {
+      res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: system }] },
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          generationConfig: json ? { responseMimeType: "application/json", temperature: 0.2 } : { temperature: 0.7 }
+        })
+      });
+    } catch (e) { throw new Error("offline"); }
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      const text = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || "").join("").trim();
+      if (text) return text;
+      last = new Error("empty"); continue;
+    }
+    const msg = data.error?.message || "";
+    if (res.status === 400 && /api key/i.test(msg)) throw new Error("badkey");
+    if (res.status === 403) throw new Error("forbidden");
+    last = new Error(res.status === 429 ? "limit" : `http ${res.status}: ${msg}`);
+    if (![404, 429, 500, 503].includes(res.status)) throw last;
+  }
+  throw last || new Error("empty");
+}
+function aiErrText(e) {
+  return {
+    nokey: "Нужен ключ Gemini. Добавь его в Настройках, это бесплатно.",
+    offline: "Нет интернета. Попробуй, когда появится связь.",
+    badkey: "Ключ не подходит. Проверь его в Настройках.",
+    forbidden: "Google не пустил запрос. Проверь ключ в Настройках.",
+    limit: "Бесплатный лимит Gemini на сейчас исчерпан. Попробуй чуть позже.",
+    empty: "Gemini ничего не ответил. Попробуй ещё раз."
+  }[e.message] || `Не получилось: ${e.message}`;
+}
+function parseJSON(raw) {
+  const s = raw.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
+  return JSON.parse(s.slice(s.indexOf("{"), s.lastIndexOf("}") + 1));
+}
+// простая разметка ответа: **жирный**, списки через «- »
+function md(t) {
+  const out = []; let list = [];
+  const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+  const flush = () => { if (list.length) { out.push(`<ul>${list.map(x => `<li>${inline(x)}</li>`).join("")}</ul>`); list = []; } };
+  for (const line of String(t).split(/\n/)) {
+    const l = line.trim();
+    if (/^([-*•]|\d+\.)\s+/.test(l)) { list.push(l.replace(/^([-*•]|\d+\.)\s+/, "")); continue; }
+    flush();
+    if (!l) continue;
+    out.push(`<p>${/^#{1,4}\s/.test(l) ? `<b>${inline(l.replace(/^#+\s*/, ""))}</b>` : inline(l)}</p>`);
+  }
+  flush();
+  return out.join("");
+}
+
+// описание дня для нейросети
+function dayContext(k) {
+  const plan = planOf(k), m = mark(k), bm = m.blocks || {};
+  const L = [`Дата: ${dayTitle(k)}. Тип дня: ${state.templates[plan].name}${m.light ? ", лёгкий день" : ""}.`, "", "Пункты плана (id | время | название | отметка | заметка):"];
+  blocksOf(k).forEach(b => L.push(`${b.id} | ${b.s}–${b.e} | ${cleanTitle(b.t)} | ${bm[b.id]?.d ? "выполнено" : "не отмечено"} | ${bm[b.id]?.n || ""}`));
+  L.push("", "Привычки сейчас:", `py (Python): ${habitText("py", m, plan) || "не отмечено"}`);
+  if (HABITS.tr[plan]) L.push(`tr (${HABITS.tr[plan].name}): ${habitText("tr", m, plan) || "не отмечено"}`);
+  L.push(`off (отход от компьютера в 23:30): ${habitText("off", m, plan) || "не отмечено"}`);
+  const prog = state.programs[plan], em = m.ex || {};
+  if (prog && prog.items.length) L.push("", `Упражнения: ${prog.items.map(x => `${x.n} ${em[x.id]?.d ? "✓" : "—"}${em[x.id]?.n ? ` (${em[x.id].n})` : ""}`).join("; ")}`);
+  if (m.note) L.push("", `Заметка дня: ${m.note}`);
+  return L.join("\n");
+}
+
+const SYS_DAY = `Ты помощник в приложении «Режим». Человек коротко, часто голосом и с ошибками, рассказывает, как прошёл день: во сколько встал, когда ужинал, что сделал. Преврати это в изменения отметок дня.
+Правила:
+- Меняй только то, о чём человек сказал явно. Ничего не выдумывай.
+- Пункт плана, о котором сказано, что он был (даже в другое время), отмечай done: true. Фактическое время и детали пиши в note.
+- note: коротко, по-русски, от первого лица, как записал бы сам человек: «встал в 9:40», «ужин в 21:00», «жим 60 × 8». Время в формате ЧЧ:ММ.
+- Если сказано, что пункта не было, ставь done: false и коротко поясни в note.
+- Привычки: py — Python, tr — тренировка дня, off — отход от компьютера. Значения: "done", "min", "skip".
+  Python: 40 минут и больше — done, меньше — min. Если названо число минут, укажи pyMins.
+  Тренировка: если названо время, укажи trMins. Лёгкая или короткая — min.
+  Отход: до 23:30 — done, до 23:45 — min, позже — skip и offTime (ЧЧ:ММ).
+- Всё, что не подходит к пунктам и привычкам, но важно человеку, добавь в dayNote.
+- reply: одно короткое дружелюбное предложение без оценок и давления.
+- Не давай советов про еду, калории и вес.
+Ответь только JSON такого вида (лишние поля не добавляй, ненужные пропусти):
+{"blocks":[{"id":"…","done":true,"note":"…"}],"habits":{"py":"done","pyMins":25,"tr":"min","trMins":20,"off":"skip","offTime":"00:20"},"dayNote":"…","reply":"…"}`;
+
+function aiCard(k) {
+  if (!aiOpen) return `<button class="aibtn" data-act="aiOpen">${ic("sparkles", 18)}Записать словами</button>`;
+  let html = `<section class="card ai"><div class="aih">${ic("sparkles", 20)}<b>Записать словами</b>
+      <button class="xs" data-act="aiClose" aria-label="Закрыть">${ic("x", 20)}</button></div>`;
+  if (!getKey()) {
+    return html + `<p class="note-s" style="margin:8px 0 0">Нужен бесплатный ключ Gemini. Это один раз и пару минут.</p>
+      <button class="bigbtn" data-act="goSettings">${ic("key", 20)}Добавить ключ</button></section>`;
+  }
+  if (aiDraft && aiDraft.day === k) {
+    html += `<ul class="draft">${aiDraft.items.map(t => `<li>${esc(t)}</li>`).join("")}</ul>
+      ${aiDraft.reply ? `<div class="reply">${esc(aiDraft.reply)}</div>` : ""}
+      <div class="btn2 ai2"><button class="plain" data-act="aiCancel">Отмена</button><button class="ok" data-act="aiApply">Применить</button></div>`;
+    return html + `</section>`;
+  }
+  html += `<textarea class="ta" data-ai="text" rows="3" placeholder="Например: встал в 9:40, ужин был в 21:00, Python 25 минут">${esc(aiText)}</textarea>
+    <p class="note-s" style="margin:6px 2px 0;display:flex;gap:6px;align-items:center">${ic("mic", 14)}Можно надиктовать: микрофон на клавиатуре.</p>
+    ${aiErr ? `<div class="err">${ic("info", 18)}<span>${esc(aiErr)}</span></div>` : ""}
+    <button class="bigbtn" data-act="aiParse" ${aiBusy ? "disabled" : ""}>${aiBusy ? "Разбираю…" : `${ic("sparkles", 20)}Разобрать`}</button>`;
+  return html + `</section>`;
+}
+
+function normalizeDraft(k, o) {
+  const plan = planOf(k), byId = Object.fromEntries(blocksOf(k).map(b => [b.id, b]));
+  const ops = { blocks: [], habits: {}, dayNote: "" }, items = [];
+  for (const b of Array.isArray(o.blocks) ? o.blocks : []) {
+    if (!b || !byId[b.id]) continue;
+    const done = b.done !== false, note = String(b.note || "").trim().slice(0, 200);
+    ops.blocks.push({ id: b.id, done, note });
+    items.push(`${done ? "✓" : "○"} ${cleanTitle(byId[b.id].t)}${note ? ` — ${note}` : ""}`);
+  }
+  const H = o.habits || {}, fake = {};
+  for (const h of ["py", "tr", "off"]) {
+    let v = H[h];
+    if (h === "tr" && !HABITS.tr[plan]) continue;
+    const mins = Math.round(+H[h + "Mins"] || 0);
+    if (h !== "off" && mins > 0 && mins <= 600) { v = mins >= fullMin(h, plan) ? "done" : "min"; ops.habits[h + "Mins"] = mins; fake[h + "Mins"] = mins; }
+    if (!["done", "min", "skip"].includes(v)) continue;
+    ops.habits[h] = v; fake[h] = v;
+    if (h === "off" && v === "skip" && /^\d{1,2}:\d\d$/.test(H.offTime || "")) { ops.habits.offTime = H.offTime.padStart(5, "0"); fake.offTime = ops.habits.offTime; }
+    items.push(`${habitDef(h, plan).name}: ${habitText(h, fake, plan)}`);
+  }
+  const dn = String(o.dayNote || "").trim().slice(0, 500);
+  if (dn) { ops.dayNote = dn; items.push(`Заметка дня: ${dn}`); }
+  return { day: k, ops, items, reply: String(o.reply || "").trim().slice(0, 200) };
+}
+
+async function aiParse() {
+  const k = viewDay, text = aiText.trim();
+  if (!text) { aiErr = "Напиши или надиктуй пару фраз о дне."; renderToday(); return; }
+  aiBusy = true; aiErr = ""; renderToday();
+  try {
+    const d = normalizeDraft(k, parseJSON(await gemini(SYS_DAY, `${dayContext(k)}\n\nЧто рассказал человек:\n${text}`, true)));
+    if (d.items.length) aiDraft = d;
+    else aiErr = "Не нашёл, что поменять. Скажи конкретнее: что было и во сколько.";
+  } catch (e) { aiErr = e instanceof SyntaxError ? "Gemini ответил непонятно. Попробуй ещё раз." : aiErrText(e); }
+  aiBusy = false;
+  if (tab === "today" && viewDay === k) renderToday();
+}
+
+function aiApply() {
+  const d = aiDraft; if (!d) return;
+  const k = d.day, plan = planOf(k), m = editMark(k), set = new Set(Object.keys(d.ops.habits));
+  m.blocks = Object.assign({}, m.blocks);
+  for (const b of d.ops.blocks) {
+    const st = m.blocks[b.id] = Object.assign({}, m.blocks[b.id]);
+    st.d = b.done;
+    if (b.note) st.n = st.n && !st.n.includes(b.note) ? `${st.n}; ${b.note}` : b.note;
+    // как и при ручной галочке: пункт отмечает пустую связанную привычку
+    const tb = blocksOf(k).find(x => x.id === b.id);
+    if (b.done && tb && tb.h && !m[tb.h] && !set.has(tb.h) && (tb.h !== "tr" || HABITS.tr[plan])) m[tb.h] = m.light ? "min" : "done";
+  }
+  for (const h of ["py", "tr", "off"]) {
+    if (!d.ops.habits[h]) continue;
+    m[h] = d.ops.habits[h];
+    if (h === "off") { if (d.ops.habits.offTime) m.offTime = d.ops.habits.offTime; else delete m.offTime; }
+    else if (d.ops.habits[h + "Mins"]) m[h + "Mins"] = d.ops.habits[h + "Mins"]; else delete m[h + "Mins"];
+  }
+  if (d.ops.dayNote) m.note = m.note ? `${m.note}\n${d.ops.dayNote}` : d.ops.dayNote;
+  m.plan = plan;
+  save();
+  aiDraft = null; aiText = ""; aiOpen = false;
+  toast("Записано", `${d.items.length} ${d.items.length === 1 ? "изменение" : d.items.length < 5 ? "изменения" : "изменений"}`);
+  renderToday();
+}
+
+const SYS_WEEK = `Ты спокойный, дружелюбный помощник в приложении «Режим». Человек впервые в жизни учится жить по распорядку: подъём в 09:00, сон в 01:00, Python каждый вечер, зал по Пн/Ср/Пт и пресс по Вт/Чт, отход от компьютера в 23:30.
+Сделай короткий разбор недели по-русски, не больше 150 слов, в таком виде:
+**Что получилось** — 2–3 пункта списком.
+**Что мешало** — 1–2 пункта, если по заметкам это видно; иначе пропусти.
+**На следующую неделю** — 1–2 маленьких конкретных шага.
+Правила: никакого давления и упрёков, не упоминай серии, рейтинги и проценты успеха. «Минимум» и лёгкие дни — это нормально и засчитывается. Пустые дни — просто не отмечены, не считай их провалом. Не давай советов про еду, калории, вес и здоровье.`;
+
+function weekContext(from) {
+  const r = countPeriod(from, addDays(from, 6)), tk = todayKey();
+  const L = [`Неделя с ${dayTitle(keyOf(from))}.`, `Итоги: Python ${r.py} из ${r.days} дней (минимум: ${r.pyMin}, всего около ${fmtDur(r.pyTime || 0)}); зал ${r.gym} из ${r.gymPlan}; пресс ${r.press} из ${r.pressPlan}; отход вовремя ${r.off}, до 23:45 ${r.offMin} из ${r.days}; пункты плана ${r.bDone} из ${r.bTotal}.`, "", "По дням:"];
+  for (let i = 0; i < 7; i++) {
+    const k = keyOf(addDays(from, i)); if (k > tk) break;
+    const m = mark(k), dd = dayData(k), plan = dd.plan;
+    if (!Object.keys(m).some(x => x !== "plan")) { L.push(`${dayTitle(k)}: не отмечено`); continue; }
+    const parts = [`${state.templates[plan].name}${m.light ? ", лёгкий день" : ""}`, `план ${dd.bDone}/${dd.blocks.length}`,
+      `Python: ${habitText("py", m, plan) || "—"}`];
+    if (HABITS.tr[plan]) parts.push(`тренировка: ${habitText("tr", m, plan) || "—"}`);
+    parts.push(`отход: ${habitText("off", m, plan) || "—"}`);
+    if (dd.exItems.length) parts.push(`упражнения ${dd.exDone}/${dd.exItems.length}`);
+    const notes = [...dd.bNotes, ...dd.exNotes].map(([t, n]) => `${t}: ${n}`);
+    if (notes.length) parts.push(`заметки: ${notes.join("; ")}`);
+    if (m.note) parts.push(`заметка дня: ${m.note}`);
+    L.push(`${dayTitle(k)}: ${parts.join(", ")}`);
+  }
+  return L.join("\n");
+}
+
+function reviewCard(wk, days) {
+  const rv = state.reviews[wk];
+  let html = `<div class="card ai">
+    <div class="aih">${ic("sparkles", 20)}<b>Разбор недели</b>${rv ? `<span class="cnt2">${new Date(rv.at).toLocaleDateString("ru-RU", { day: "numeric", month: "short" })}</span>` : ""}</div>`;
+  if (rv) html += `<div class="md">${md(rv.t)}</div>`;
+  else html += `<p class="note-s" style="margin:8px 0 0">Gemini посмотрит отметки и заметки за неделю и мягко подскажет, что получается и что упростить.</p>`;
+  if (revErr) html += `<div class="err">${ic("info", 18)}<span>${esc(revErr)}</span></div>`;
+  if (!getKey()) html += `<button class="bigbtn" data-act="goSettings">${ic("key", 20)}Добавить ключ Gemini</button>`;
+  else if (days) html += `<button class="${rv ? "secbtn" : "bigbtn"}" data-act="review" ${revBusy ? "disabled" : ""}>${revBusy ? "Думаю…" : rv ? `${ic("sparkles", 18)}Разобрать заново` : `${ic("sparkles", 20)}Разобрать неделю`}</button>`;
+  return html + `</div>`;
+}
+
+async function aiReview() {
+  const from = new Date(weekStart), wk = keyOf(from);
+  revBusy = true; revErr = ""; renderStats();
+  try {
+    const t = await gemini(SYS_WEEK, weekContext(from), false);
+    state.reviews[wk] = { t, at: new Date().toISOString() };
+    save();
+  } catch (e) { revErr = aiErrText(e); }
+  revBusy = false;
+  if (tab === "stats") renderStats();
+}
+
 // ---------- события ----------
 document.querySelector("nav.tabs").addEventListener("click", e => {
   const b = e.target.closest("button[data-tab]"); if (!b) return;
@@ -1001,7 +1291,7 @@ document.querySelector("nav.tabs").addEventListener("click", e => {
   render(); window.scrollTo(0, 0);
 });
 
-function goDay(k) { viewDay = k; openBlock = null; trType = null; trEdit = false; sheetOpen = false; render(); }
+function goDay(k) { viewDay = k; openBlock = null; trType = null; trEdit = false; sheetOpen = false; aiDraft = null; aiErr = ""; render(); }
 
 app.addEventListener("click", e => {
   const el = e.target.closest("button, [data-act]"); if (!el || el.disabled) return;
@@ -1077,6 +1367,20 @@ app.addEventListener("click", e => {
         state.templates[edTpl] = clone(DEFAULT_TEMPLATES[edTpl]); tplWarn = ""; save(); renderSettings(); toast("Шаблон восстановлен");
       }
       break;
+    case "aiOpen": aiOpen = true; aiErr = ""; renderToday(); { const t = app.querySelector('[data-ai="text"]'); if (t) t.focus(); } break;
+    case "aiClose": aiOpen = false; aiDraft = null; aiErr = ""; renderToday(); break;
+    case "aiParse": aiParse(); break;
+    case "aiApply": aiApply(); break;
+    case "aiCancel": aiDraft = null; renderToday(); break;
+    case "review": aiReview(); break;
+    case "goSettings": tab = "settings"; render(); window.scrollTo(0, document.body.scrollHeight); break;
+    case "keySave": {
+      const v = (document.getElementById("gkey")?.value || "").trim();
+      if (v.length < 20) { toast("Это не похоже на ключ", "Скопируй его целиком из Google AI Studio"); break; }
+      setKey(v); renderSettings(); toast("Ключ сохранён", "Теперь работает запись словами и разбор недели"); break;
+    }
+    case "keyDel": if (confirm("Удалить ключ Gemini с этого телефона?")) { setKey(""); renderSettings(); } break;
+    case "backupSkip": state.backupSkip = todayKey(); save(); renderToday(); break;
     case "export": exportData(); break;
     case "import": document.getElementById("importFile").click(); break;
   }
@@ -1084,6 +1388,7 @@ app.addEventListener("click", e => {
 
 // заметки сохраняются по мере набора, без перерисовки
 app.addEventListener("input", e => {
+  if (e.target.dataset.ai === "text") { aiText = e.target.value; return; }
   const key = e.target.dataset.note; if (key === undefined) return;
   const [kind, id] = key.split(":"), m = editMark(viewDay), val = e.target.value;
   if (kind === "d") m.note = val;
@@ -1137,7 +1442,7 @@ document.getElementById("importFile").addEventListener("change", async e => {
     const d = JSON.parse(await f.text());
     if (d.app !== "rezhim" || typeof d.marks !== "object") throw new Error("bad");
     if (!confirm("Заменить текущие данные данными из файла?")) return;
-    localStorage.setItem(KEY, JSON.stringify({ marks: d.marks, templates: d.templates, week: d.week, programs: d.programs }));
+    localStorage.setItem(KEY, JSON.stringify({ marks: d.marks, templates: d.templates, week: d.week, programs: d.programs, reviews: d.reviews, lastBackup: d.lastBackup }));
     state = load(); render(); toast("Восстановлено");
   } catch (err) { toast("Это не файл копии «Режима»"); }
 });
