@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Режим</title>
+<meta name="description" content="Расписание дня, отметки привычек и итоги недели и месяца">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Режим">
+<meta name="theme-color" content="#f6f5f2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16171a" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<style>
+:root {
+  --bg: #f6f5f2; --card: #ffffff; --ink: #1d1e21; --muted: #6d6f76; --line: #e4e2dc;
+  --accent: #3f6fb5; --accent-soft: #dbe6f6; --min: #8fb0dc; --min-soft: #eef3fa;
+  --skip: #c9c7c1; --now: #fff4d6; --now-line: #e3b341;
+  --radius: 14px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #16171a; --card: #212226; --ink: #ecebe7; --muted: #9a9ca3; --line: #34353a;
+    --accent: #7da5e3; --accent-soft: #29384f; --min: #5677a6; --min-soft: #252d39;
+    --skip: #55565c; --now: #3a3220; --now-line: #c99a2e;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #16171a; --card: #212226; --ink: #ecebe7; --muted: #9a9ca3; --line: #34353a;
+  --accent: #7da5e3; --accent-soft: #29384f; --min: #5677a6; --min-soft: #252d39;
+  --skip: #55565c; --now: #3a3220; --now-line: #c99a2e;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body {
+  font: 16px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  padding: env(safe-area-inset-top) 0 calc(72px + env(safe-area-inset-bottom));
+  -webkit-text-size-adjust: 100%;
+}
+main { max-width: 560px; margin: 0 auto; padding: 12px 16px 24px; }
+h1 { font-size: 22px; margin: 4px 0 2px; letter-spacing: -0.01em; }
+h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 22px 4px 8px; font-weight: 600; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.card { background: var(--card); border-radius: var(--radius); padding: 14px; border: 1px solid var(--line); }
+.stack > * + * { margin-top: 10px; }
+button, select, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+
+/* header */
+.daynav { display: flex; align-items: center; gap: 8px; }
+.daynav .title { flex: 1; min-width: 0; }
+.iconbtn { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); font-size: 20px; line-height: 1; }
+.chiprow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
+.chip { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 4px 10px; font-size: 14px; }
+select.chip { appearance: none; -webkit-appearance: none; padding-right: 24px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 13px) 55%, calc(100% - 8px) 55%; background-size: 5px 5px; background-repeat: no-repeat; }
+.linkbtn { border: 0; background: none; color: var(--accent); padding: 4px 2px; font-size: 14px; }
+
+.banner { display: flex; align-items: center; gap: 10px; background: var(--accent-soft); border-radius: var(--radius); padding: 12px 14px; margin-top: 12px; }
+.banner span { flex: 1; }
+.banner button { border: 0; background: var(--accent); color: #fff; border-radius: 10px; padding: 8px 12px; font-weight: 600; }
+
+/* habits */
+.habit .head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.habit .name { font-weight: 600; }
+.opts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.opt { border: 1px solid var(--line); background: transparent; border-radius: 12px; padding: 10px 4px; min-height: 48px; font-size: 14px; line-height: 1.2; }
+.opt[aria-pressed="true"][data-v="done"] { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.opt[aria-pressed="true"][data-v="min"] { background: var(--min-soft); border-color: var(--min); font-weight: 600; }
+.opt[aria-pressed="true"][data-v="skip"] { background: var(--line); border-color: var(--skip); font-weight: 600; }
+.opt:disabled { opacity: .45; }
+
+.switch { display: flex; align-items: center; gap: 12px; }
+.switch .txt { flex: 1; }
+.toggle { position: relative; width: 52px; height: 32px; border-radius: 999px; border: 0; background: var(--line); flex: none; transition: background .15s; }
+.toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .15s; }
+.toggle[aria-checked="true"] { background: var(--accent); }
+.toggle[aria-checked="true"]::after { transform: translateX(20px); }
+
+/* schedule */
+.sched { padding: 4px 0; }
+.row { display: grid; grid-template-columns: 92px 1fr; gap: 10px; padding: 9px 14px; border-left: 3px solid transparent; }
+.row + .row { border-top: 1px solid var(--line); }
+.row .time { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 14px; padding-top: 1px; }
+.row .note { color: var(--muted); font-size: 13px; margin-top: 2px; }
+.row.past { opacity: .5; }
+.row.now { background: var(--now); border-left-color: var(--now-line); }
+.row.now .time { color: var(--ink); font-weight: 600; }
+
+/* stats */
+.periodnav { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.periodnav .label { flex: 1; text-align: center; font-weight: 600; }
+.stat { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: baseline; }
+.stat + .stat { margin-top: 12px; }
+.stat .val { font-variant-numeric: tabular-nums; font-weight: 600; }
+.bar { grid-column: 1 / -1; height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; display: flex; }
+.bar i { display: block; height: 100%; }
+.bar .d { background: var(--accent); } .bar .m { background: var(--min); }
+.grid7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.grid7 .wd { text-align: center; font-size: 12px; color: var(--muted); padding-bottom: 2px; }
+.cell { border: 1px solid var(--line); border-radius: 10px; background: transparent; padding: 6px 0 7px; display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 48px; }
+.cell.today { border-color: var(--accent); }
+.cell.future { opacity: .4; }
+.cell .n { font-size: 13px; font-variant-numeric: tabular-nums; }
+.dots { display: flex; gap: 3px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; border: 1px solid var(--skip); }
+.dot.done { background: var(--accent); border-color: var(--accent); }
+.dot.min { background: var(--min); border-color: var(--min); }
+.dot.skip { background: var(--skip); }
+.dot.na { border-color: transparent; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin-top: 10px; }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+
+/* settings */
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--line); border-radius: 10px; padding: 2px; gap: 2px; }
+.seg button { border: 0; background: transparent; border-radius: 8px; padding: 7px 4px; font-size: 14px; }
+.seg button[aria-pressed="true"] { background: var(--card); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.wkrow { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; }
+.wkrow + .wkrow { border-top: 1px solid var(--line); }
+.wkrow select { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 6px 8px; }
+.ed { display: grid; grid-template-columns: 1fr 1fr auto; gap: 6px; align-items: center; }
+.ed + .ed { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+.ed input { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 7px 8px; min-width: 0; width: 100%; font-size: 16px; }
+.ed input[type="text"] { grid-column: 1 / -1; }
+.ed .del { border: 0; background: none; color: var(--muted); font-size: 20px; width: 32px; }
+.btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.btn { border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 10px 14px; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.warn { color: #b5602a; font-size: 14px; margin-top: 8px; }
+
+/* tabbar */
+nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line);
+  display: grid; grid-template-columns: repeat(3, 1fr); padding-bottom: env(safe-area-inset-bottom); z-index: 5; }
+nav.tabs button { border: 0; background: none; padding: 8px 0 10px; font-size: 12px; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 2px; }
+nav.tabs button .ic { font-size: 22px; line-height: 1.1; filter: grayscale(1); opacity: .7; }
+nav.tabs button[aria-current="page"] { color: var(--accent); font-weight: 600; }
+nav.tabs button[aria-current="page"] .ic { filter: none; opacity: 1; }
+
+.toast { position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--ink); color: var(--bg);
+  padding: 9px 14px; border-radius: 10px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 9; max-width: calc(100% - 32px); }
+.toast.show { opacity: .92; }
+</style>
+</head>
+<body>
+<main id="app"></main>
+<nav class="tabs" aria-label="Разделы">
+  <button data-tab="today"><span class="ic">📋</span>Сегодня</button>
+  <button data-tab="stats"><span class="ic">📊</span>Итоги</button>
+  <button data-tab="settings"><span class="ic">⚙️</span>Настройки</button>
+</nav>
+<div class="toast" id="toast" role="status"></div>
+<input type="file" id="importFile" accept="application/json,.json" hidden>
+
+<script>
+"use strict";
+const KEY = "rezhim.v1";
+
+const DEFAULT_TEMPLATES = {
+  gym: { name: "Зал", icon: "🏋️", blocks: [
+    { s: "09:00", e: "09:45", t: "☀️ Подъём · завтрак", n: "Отметь вчерашний день" },
+    { s: "10:00", e: "19:00", t: "💼 Работа", n: "Обед — окно 13:00–15:00" },
+    { s: "19:00", e: "19:30", t: "🍌 Перекус · сборы в зал", n: "Банан, йогурт, вода, форма" },
+    { s: "19:30", e: "22:00", t: "🏋️ Зал (выход 19:30)", n: "Тренировка 20:00–21:30", l: "30 минут лёгкой тренировки или 20 минут прогулки" },
+    { s: "22:00", e: "22:30", t: "🍽️ Ужин · душ · отдых", n: "Ничего не добавлять" },
+    { s: "22:30", e: "23:10", t: "🐍 Python", n: "40 минут", l: "10 минут — это засчитывается" },
+    { s: "23:10", e: "23:30", t: "🎧 Спокойные 20 минут", n: "Только то, что легко бросить" },
+    { s: "23:30", e: "00:00", t: "🪥 Без компьютера · гигиена", n: "", l: "Если не успел — к 23:45" },
+    { s: "00:00", e: "01:00", t: "🛏️ Кровать, засыпание", n: "Без экрана. В 01:00 — сон" }
+  ]},
+  press: { name: "Пресс", icon: "💪", blocks: [
+    { s: "09:00", e: "09:45", t: "☀️ Подъём · завтрак", n: "Отметь вчерашний день" },
+    { s: "10:00", e: "19:00", t: "💼 Работа", n: "Обед — окно 13:00–15:00" },
+    { s: "19:15", e: "19:45", t: "💪 Пресс дома", n: "До 30 минут, до компьютера", l: "10 минут или один круг" },
+    { s: "19:45", e: "20:45", t: "🍽️ Ужин", n: "Окно 19:45–21:00" },
+    { s: "20:45", e: "22:30", t: "🎮 Игры и отдых", n: "В 22:20 — доигрывай" },
+    { s: "22:30", e: "23:10", t: "🐍 Python", n: "40 минут", l: "10 минут — это засчитывается" },
+    { s: "23:10", e: "23:30", t: "🎧 Спокойные 20 минут", n: "Только то, что легко бросить" },
+    { s: "23:30", e: "00:00", t: "🪥 Без компьютера · гигиена", n: "", l: "Если не успел — к 23:45" },
+    { s: "00:00", e: "01:00", t: "🛏️ Кровать, засыпание", n: "Без экрана. В 01:00 — сон" }
+  ]},
+  rest: { name: "Выходной", icon: "🌿", blocks: [
+    { s: "09:00", e: "10:30", t: "☀️ Подъём · неспешный завтрак", n: "Отметь вчерашний день" },
+    { s: "10:30", e: "13:00", t: "🎮 Свободно", n: "Игры, отдых, прогулка" },
+    { s: "13:00", e: "14:00", t: "🍽️ Обед", n: "Окно 13:00–15:00" },
+    { s: "14:00", e: "19:00", t: "🎮 Свободно", n: "" },
+    { s: "19:00", e: "20:00", t: "🍽️ Ужин", n: "Окно 18:30–20:30" },
+    { s: "20:00", e: "22:30", t: "🎮 Игры и отдых", n: "В 22:20 — доигрывай" },
+    { s: "22:30", e: "23:10", t: "🐍 Python", n: "40 минут", l: "10 минут — это засчитывается" },
+    { s: "23:10", e: "23:30", t: "🎧 Спокойные 20 минут", n: "Только то, что легко бросить" },
+    { s: "23:30", e: "00:00", t: "🪥 Без компьютера · гигиена", n: "", l: "Если не успел — к 23:45" },
+    { s: "00:00", e: "01:00", t: "🛏️ Кровать, засыпание", n: "Без экрана. В 01:00 — сон" }
+  ]}
+};
+// Пн..Вс
+const DEFAULT_WEEK = ["gym", "press", "gym", "press", "gym", "rest", "rest"];
+const WD_FULL = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
+const WD_SHORT = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+const MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+const MONTHS_NOM = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+
+const HABITS = {
+  py:  { name: "🐍 Python", opts: { done: "Да · 40 мин", min: "Минимум · 10 мин", skip: "Пропуск" } },
+  tr:  { gym:   { name: "🏋️ Зал", opts: { done: "Сходил", min: "Лёгкая", skip: "Пропуск" } },
+         press: { name: "💪 Пресс", opts: { done: "До 30 мин", min: "10 мин", skip: "Пропуск" } } },
+  off: { name: "🖥️ Отход в 23:30", opts: { done: "До 23:30", min: "До 23:45", skip: "Позже" } }
+};
+
+// ---------- состояние ----------
+const clone = o => JSON.parse(JSON.stringify(o));
+function load() {
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+  s = s && typeof s === "object" ? s : {};
+  return {
+    marks: s.marks || {},
+    templates: s.templates || clone(DEFAULT_TEMPLATES),
+    week: Array.isArray(s.week) && s.week.length === 7 ? s.week : DEFAULT_WEEK.slice()
+  };
+}
+let state = load();
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); }
+  catch (e) { toast("Не удалось сохранить: память браузера недоступна"); }
+}
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+
+// ---------- даты ----------
+const pad = n => String(n).padStart(2, "0");
+const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const fromKey = k => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); };
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const wdIdx = d => (d.getDay() + 6) % 7;
+// день заканчивается в 05:00: в 00:30 «сегодня» — это ещё вчерашний вечер
+const DAY_START = 300;
+const todayKey = () => keyOf(new Date(Date.now() - DAY_START * 60000));
+const shiftMin = t => { const m = toMin(t); return m < DAY_START ? m + 1440 : m; };
+const mondayOf = d => addDays(new Date(d.getFullYear(), d.getMonth(), d.getDate()), -wdIdx(d));
+const toMin = t => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+
+function planOf(k) {
+  const m = state.marks[k];
+  if (m && m.plan && state.templates[m.plan]) return m.plan;
+  return state.week[wdIdx(fromKey(k))];
+}
+function mark(k) { return state.marks[k] || {}; }
+
+// ---------- UI ----------
+const app = document.getElementById("app");
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let tab = "today";
+let viewDay = todayKey();
+let weekStart = mondayOf(fromKey(todayKey()));
+let monthCur = new Date(fromKey(todayKey()).getFullYear(), fromKey(todayKey()).getMonth(), 1);
+let edTpl = "gym";
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg; el.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
+}
+
+function render() {
+  document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-current", b.dataset.tab === tab ? "page" : "false"));
+  if (tab === "today") renderToday();
+  else if (tab === "stats") renderStats();
+  else renderSettings();
+}
+
+function habitCard(id, h, val, disabled) {
+  return `<div class="card habit">
+    <div class="head"><span class="name">${h.name}</span></div>
+    <div class="opts">${Object.entries(h.opts).map(([v, label]) =>
+      `<button class="opt" data-h="${id}" data-v="${v}" aria-pressed="${val === v}" ${disabled ? "disabled" : ""}>${label}</button>`).join("")}
+    </div></div>`;
+}
+
+function renderToday() {
+  const k = viewDay, d = fromKey(k), tk = todayKey();
+  const isToday = k === tk, isFuture = k > tk;
+  const plan = planOf(k), tpl = state.templates[plan], m = mark(k), light = !!m.light;
+  const yk = keyOf(addDays(fromKey(tk), -1)), ym = mark(yk);
+  const yNeed = Object.keys(state.marks).length > 0 && (!ym.py || !ym.off || (planOf(yk) !== "rest" && !ym.tr));
+  const nowMin = shiftMin(`${new Date().getHours()}:${new Date().getMinutes()}`);
+
+  let html = `<div class="daynav">
+      <button class="iconbtn" data-act="prev" aria-label="Предыдущий день">‹</button>
+      <div class="title"><h1>${WD_FULL[wdIdx(d)]}, ${d.getDate()} ${MONTHS[d.getMonth()]}</h1></div>
+      <button class="iconbtn" data-act="next" aria-label="Следующий день">›</button>
+    </div>
+    <div class="chiprow">
+      <select class="chip" id="planSel" aria-label="Тип дня">${Object.entries(state.templates).map(([id, t]) =>
+        `<option value="${id}" ${id === plan ? "selected" : ""}>${t.icon} ${esc(t.name)}</option>`).join("")}</select>
+      ${isToday ? `<span class="muted small">сегодня</span>` : `<button class="linkbtn" data-act="today">← к сегодня</button>`}
+    </div>`;
+
+  if (isToday && yNeed) html += `<div class="banner"><span>Вчерашний день ещё не отмечен</span><button data-act="yesterday">Отметить</button></div>`;
+
+  html += `<h2>Отметки</h2><div class="stack">`;
+  if (isFuture) html += `<p class="muted small" style="margin:0 4px">Отмечать можно сегодня и прошедшие дни.</p>`;
+  html += habitCard("py", HABITS.py, m.py, isFuture);
+  if (HABITS.tr[plan]) html += habitCard("tr", HABITS.tr[plan], m.tr, isFuture);
+  html += habitCard("off", HABITS.off, m.off, isFuture);
+  html += `<div class="card switch"><div class="txt"><div style="font-weight:600">Лёгкий день</div>
+      <div class="muted small">Устал или всё навалилось — минимум засчитывается полностью, пропуск не переносится.</div></div>
+      <button class="toggle" role="switch" aria-checked="${light}" aria-label="Лёгкий день" data-act="light"></button></div>`;
+  html += `</div>`;
+
+  html += `<h2>${light ? "План · лёгкий день" : "План"}</h2><div class="card sched" style="padding:0">`;
+  tpl.blocks.forEach(b => {
+    const s = shiftMin(b.s); let e = shiftMin(b.e); if (e <= s) e += 1440;
+    const cls = isToday ? (nowMin >= s && nowMin < e ? "now" : nowMin >= e ? "past" : "") : "";
+    const note = light && b.l ? `⤵ ${b.l}` : b.n;
+    html += `<div class="row ${cls}"><div class="time">${b.s}–${b.e}</div>
+      <div><div>${esc(b.t)}</div>${note ? `<div class="note">${esc(note)}</div>` : ""}</div></div>`;
+  });
+  html += `</div><p class="muted small" style="margin:10px 4px">Уведомления приходят из Календаря iPhone. Здесь — план и отметки.</p>`;
+  app.innerHTML = html;
+}
+
+function countPeriod(from, to) {
+  const tk = todayKey();
+  const r = { days: 0, py: 0, pyMin: 0, gym: 0, gymPlan: 0, press: 0, pressPlan: 0, off: 0, offMin: 0 };
+  for (let d = new Date(from); keyOf(d) <= keyOf(to) && keyOf(d) <= tk; d = addDays(d, 1)) {
+    const k = keyOf(d), m = mark(k), p = planOf(k);
+    r.days++;
+    if (m.py === "done" || m.py === "min") r.py++;
+    if (m.py === "min") r.pyMin++;
+    const tr = m.tr === "done" || m.tr === "min";
+    if (p === "gym") { r.gymPlan++; if (tr) r.gym++; }
+    if (p === "press") { r.pressPlan++; if (tr) r.press++; }
+    if (m.off === "done") r.off++;
+    if (m.off === "min") r.offMin++;
+  }
+  return r;
+}
+function statRow(label, done, min, total, extra) {
+  const pd = total ? (done - min) / total * 100 : 0, pm = total ? min / total * 100 : 0;
+  return `<div class="stat"><span>${label}</span><span class="val">${total ? `${done} из ${total}` : "—"}</span>
+    <div class="bar"><i class="d" style="width:${pd}%"></i><i class="m" style="width:${pm}%"></i></div>
+    ${extra ? `<span class="muted small" style="grid-column:1/-1">${extra}</span>` : ""}</div>`;
+}
+function statsBlock(r) {
+  return statRow("🐍 Python, дней", r.py, r.pyMin, r.days, r.pyMin ? `из них минимум: ${r.pyMin}` : "") +
+    statRow("🏋️ Зал", r.gym, 0, r.gymPlan) +
+    statRow("💪 Пресс", r.press, 0, r.pressPlan) +
+    statRow("🖥️ Отход от компьютера", r.off + r.offMin, r.offMin, r.days, r.offMin ? `вовремя: ${r.off}, до 23:45: ${r.offMin}` : "");
+}
+
+function renderStats() {
+  const we = addDays(weekStart, 6), tk = todayKey();
+  const w = countPeriod(weekStart, we);
+  const fmt = d => `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+  const mEnd = new Date(monthCur.getFullYear(), monthCur.getMonth() + 1, 0);
+  const mo = countPeriod(monthCur, mEnd);
+
+  let html = `<h1>Итоги</h1><p class="muted small" style="margin:2px 0 0">Минимум считается. Пустые дни — просто не отмечены. Серий и рейтингов нет.</p>`;
+  html += `<h2>Неделя</h2><div class="card"><div class="periodnav">
+      <button class="iconbtn" data-act="wprev" aria-label="Предыдущая неделя">‹</button>
+      <div class="label">${fmt(weekStart)} – ${fmt(we)}</div>
+      <button class="iconbtn" data-act="wnext" aria-label="Следующая неделя">›</button></div>
+      ${statsBlock(w)}</div>`;
+
+  html += `<h2>Месяц</h2><div class="card"><div class="periodnav">
+      <button class="iconbtn" data-act="mprev" aria-label="Предыдущий месяц">‹</button>
+      <div class="label">${MONTHS_NOM[monthCur.getMonth()]} ${monthCur.getFullYear()}</div>
+      <button class="iconbtn" data-act="mnext" aria-label="Следующий месяц">›</button></div>
+      ${statsBlock(mo)}
+      <div class="grid7" style="margin-top:16px">${WD_SHORT.map(x => `<div class="wd">${x}</div>`).join("")}`;
+  for (let i = 0; i < wdIdx(monthCur); i++) html += `<div></div>`;
+  for (let d = new Date(monthCur); d <= mEnd; d = addDays(d, 1)) {
+    const k = keyOf(d), m = mark(k), p = planOf(k);
+    const dot = (v, na) => `<i class="dot ${na ? "na" : v || ""}"></i>`;
+    html += `<button class="cell ${k === tk ? "today" : ""} ${k > tk ? "future" : ""}" data-day="${k}" aria-label="${d.getDate()} ${MONTHS[d.getMonth()]}">
+      <span class="n">${d.getDate()}</span><span class="dots">${dot(m.py)}${dot(m.tr, p === "rest")}${dot(m.off)}</span></button>`;
+  }
+  html += `</div><div class="legend"><span>точки: Python · тренировка · отход</span>
+      <span><i class="dot done"></i>да</span><span><i class="dot min"></i>минимум</span><span><i class="dot skip"></i>пропуск</span></div>
+      <p class="muted small" style="margin:8px 0 0">Нажми на день, чтобы открыть и отметить его.</p></div>`;
+  app.innerHTML = html;
+}
+
+function renderSettings(warn) {
+  const t = state.templates[edTpl];
+  let html = `<h1>Настройки</h1>`;
+  html += `<h2>Какой день недели — какой шаблон</h2><div class="card" style="padding:4px 14px">`;
+  WD_FULL.forEach((n, i) => {
+    html += `<div class="wkrow"><span>${n}</span><select data-wd="${i}">${Object.entries(state.templates).map(([id, x]) =>
+      `<option value="${id}" ${state.week[i] === id ? "selected" : ""}>${x.icon} ${esc(x.name)}</option>`).join("")}</select></div>`;
+  });
+  html += `</div><p class="muted small" style="margin:8px 4px 0">Разово поменять тип дня можно на экране «Сегодня» — в выпадающем списке под датой.</p>`;
+
+  html += `<h2>Шаблоны дня</h2><div class="card">
+    <div class="seg">${Object.entries(state.templates).map(([id, x]) =>
+      `<button data-tpl="${id}" aria-pressed="${id === edTpl}">${x.icon} ${esc(x.name)}</button>`).join("")}</div>
+    <div id="edlist" style="margin-top:12px">${t.blocks.map((b, i) => `<div class="ed" data-i="${i}">
+      <input type="time" value="${b.s}" data-f="s" aria-label="Начало">
+      <input type="time" value="${b.e}" data-f="e" aria-label="Конец">
+      <button class="del" data-act="del" data-i="${i}" aria-label="Удалить">×</button>
+      <input type="text" value="${esc(b.t)}" data-f="t" aria-label="Название"></div>`).join("")}</div>
+    ${warn ? `<div class="warn">${esc(warn)}</div>` : ""}
+    <div class="btns"><button class="btn" data-act="add">+ Добавить</button>
+      <button class="btn primary" data-act="saveTpl">Сохранить</button>
+      <button class="btn" data-act="resetTpl">Вернуть исходный</button></div>
+    <p class="muted small" style="margin:10px 0 0">Время уведомлений меняется в Календаре iPhone: событие → Изменить → «Сохранить для будущих событий».</p></div>`;
+
+  html += `<h2>Резервная копия</h2><div class="card">
+    <p class="small" style="margin:0">Отметки хранятся только на этом телефоне. Раз в неделю сохраняй копию в «Файлы».</p>
+    <div class="btns"><button class="btn primary" data-act="export">Сохранить копию</button>
+      <button class="btn" data-act="import">Восстановить из файла</button></div></div>`;
+  html += `<p class="muted small" style="margin:18px 4px">Режим · уведомления и будильник — в Календаре и «Здоровье → Сон».</p>`;
+  app.innerHTML = html;
+}
+
+function readEditor() {
+  return [...document.querySelectorAll("#edlist .ed")].map(r => {
+    const i = +r.dataset.i, old = state.templates[edTpl].blocks[i] || {};
+    const v = f => r.querySelector(`[data-f="${f}"]`).value.trim();
+    return Object.assign({}, old, { s: v("s"), e: v("e"), t: v("t") });
+  });
+}
+function checkBlocks(bl) {
+  for (const b of bl) if (!/^\d\d:\d\d$/.test(b.s) || !/^\d\d:\d\d$/.test(b.e) || !b.t) return "У каждой строки должно быть время начала, конца и название.";
+  const n = shiftMin;
+  bl.sort((a, b) => n(a.s) - n(b.s));
+  for (let i = 1; i < bl.length; i++) {
+    let pe = n(bl[i - 1].e); if (pe <= n(bl[i - 1].s)) pe += 1440;
+    if (n(bl[i].s) < pe) return `Пересекаются: «${bl[i - 1].t}» и «${bl[i].t}». Сохранено, но проверь время.`;
+  }
+  return "";
+}
+
+async function exportData() {
+  const data = JSON.stringify({ app: "rezhim", version: 1, exported: new Date().toISOString(), ...state }, null, 1);
+  const name = `rezhim-${todayKey()}.json`;
+  const file = new File([data], name, { type: "application/json" });
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name }); return; }
+  } catch (e) { if (e.name === "AbortError") return; }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(file); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+
+// ---------- события ----------
+document.querySelector("nav.tabs").addEventListener("click", e => {
+  const b = e.target.closest("button[data-tab]"); if (!b) return;
+  tab = b.dataset.tab;
+  if (tab === "today") viewDay = todayKey();
+  render(); window.scrollTo(0, 0);
+});
+
+app.addEventListener("click", e => {
+  const el = e.target.closest("button"); if (!el) return;
+  const act = el.dataset.act;
+  if (el.classList.contains("opt")) {
+    const m = state.marks[viewDay] = Object.assign({}, state.marks[viewDay]);
+    m[el.dataset.h] = m[el.dataset.h] === el.dataset.v ? undefined : el.dataset.v;
+    m.plan = planOf(viewDay);
+    save(); renderToday(); return;
+  }
+  if (el.dataset.day) { viewDay = el.dataset.day; tab = "today"; render(); window.scrollTo(0, 0); return; }
+  if (el.dataset.tpl) { edTpl = el.dataset.tpl; renderSettings(); return; }
+  switch (act) {
+    case "prev": viewDay = keyOf(addDays(fromKey(viewDay), -1)); renderToday(); break;
+    case "next": viewDay = keyOf(addDays(fromKey(viewDay), 1)); renderToday(); break;
+    case "today": viewDay = todayKey(); renderToday(); break;
+    case "yesterday": viewDay = keyOf(addDays(fromKey(todayKey()), -1)); renderToday(); break;
+    case "light": {
+      const m = state.marks[viewDay] = Object.assign({}, state.marks[viewDay]);
+      m.light = !m.light; save(); renderToday(); break;
+    }
+    case "wprev": weekStart = addDays(weekStart, -7); renderStats(); break;
+    case "wnext": weekStart = addDays(weekStart, 7); renderStats(); break;
+    case "mprev": monthCur = new Date(monthCur.getFullYear(), monthCur.getMonth() - 1, 1); renderStats(); break;
+    case "mnext": monthCur = new Date(monthCur.getFullYear(), monthCur.getMonth() + 1, 1); renderStats(); break;
+    case "add": {
+      const bl = readEditor(); bl.push({ s: "", e: "", t: "" });
+      state.templates[edTpl].blocks = bl; renderSettings();
+      const inputs = document.querySelectorAll("#edlist .ed:last-child input"); if (inputs[0]) inputs[0].focus();
+      break;
+    }
+    case "del": {
+      const bl = readEditor(); bl.splice(+el.dataset.i, 1);
+      state.templates[edTpl].blocks = bl; renderSettings(); break;
+    }
+    case "saveTpl": {
+      const bl = readEditor().filter(b => b.s || b.e || b.t);
+      const w = checkBlocks(bl);
+      if (w.startsWith("У каждой")) { renderSettings(w); break; }
+      state.templates[edTpl].blocks = bl; save(); renderSettings(w); if (!w) toast("Шаблон сохранён");
+      break;
+    }
+    case "resetTpl":
+      if (confirm(`Вернуть шаблон «${state.templates[edTpl].name}» к исходному?`)) {
+        state.templates[edTpl] = clone(DEFAULT_TEMPLATES[edTpl]); save(); renderSettings(); toast("Шаблон восстановлен");
+      }
+      break;
+    case "export": exportData(); break;
+    case "import": document.getElementById("importFile").click(); break;
+  }
+});
+
+app.addEventListener("change", e => {
+  if (e.target.id === "planSel") {
+    const m = state.marks[viewDay] = Object.assign({}, state.marks[viewDay]);
+    m.plan = e.target.value;
+    if (m.plan === "rest") delete m.tr;
+    save(); renderToday(); return;
+  }
+  if (e.target.dataset.wd !== undefined) {
+    state.week[+e.target.dataset.wd] = e.target.value; save(); toast("Сохранено");
+  }
+});
+
+document.getElementById("importFile").addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  try {
+    const d = JSON.parse(await f.text());
+    if (d.app !== "rezhim" || typeof d.marks !== "object") throw new Error("bad");
+    if (!confirm("Заменить текущие отметки и шаблоны данными из файла?")) return;
+    state = { marks: d.marks, templates: d.templates || clone(DEFAULT_TEMPLATES), week: d.week || DEFAULT_WEEK.slice() };
+    save(); render(); toast("Восстановлено");
+  } catch (err) { toast("Это не файл копии «Режима»"); }
+});
+
+// при возвращении в приложение после полуночи — показать новый день
+let lastToday = todayKey();
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState !== "visible") return;
+  const tk = todayKey();
+  if (tk !== lastToday) { if (viewDay === lastToday) viewDay = tk; lastToday = tk; }
+  render();
+});
+setInterval(() => { if (tab === "today" && document.visibilityState === "visible" && !document.activeElement.matches("input,select")) renderToday(); }, 60000);
+
+render();
+if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>
