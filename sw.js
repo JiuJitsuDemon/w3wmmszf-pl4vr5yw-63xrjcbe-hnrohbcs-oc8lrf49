@@ -1,9 +1,12 @@
 // Офлайн-кэш: приложение открывается без интернета, обновления подтягиваются в фоне.
-const CACHE = "rezhim-v2";
+const CACHE = "rezhim-v3";
 const FILES = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
+  // cache: "reload" — мимо HTTP-кэша, чтобы новая версия не взяла старые файлы
+  e.waitUntil(caches.open(CACHE)
+    .then(c => c.addAll(FILES.map(f => new Request(f, { cache: "reload" }))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", e => {
