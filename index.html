@@ -8,188 +8,333 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Режим">
-<meta name="theme-color" content="#f6f5f2" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#16171a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#111215">
+<meta name="color-scheme" content="dark">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-180.png">
 <style>
+/* Только тёмная тема */
 :root {
-  --bg: #f6f5f2; --card: #ffffff; --ink: #1d1e21; --muted: #6d6f76; --line: #e4e2dc;
-  --accent: #3f6fb5; --accent-soft: #dbe6f6; --min: #8fb0dc; --min-soft: #eef3fa;
-  --skip: #c9c7c1; --now: #fff4d6; --now-line: #e3b341;
-  --radius: 14px;
-  color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #16171a; --card: #212226; --ink: #ecebe7; --muted: #9a9ca3; --line: #34353a;
-    --accent: #7da5e3; --accent-soft: #29384f; --min: #5677a6; --min-soft: #252d39;
-    --skip: #55565c; --now: #3a3220; --now-line: #c99a2e;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #16171a; --card: #212226; --ink: #ecebe7; --muted: #9a9ca3; --line: #34353a;
-  --accent: #7da5e3; --accent-soft: #29384f; --min: #5677a6; --min-soft: #252d39;
-  --skip: #55565c; --now: #3a3220; --now-line: #c99a2e;
+  --bg: #111215; --card: #1B1C20; --sheet: #1E1F24; --field: #232429; --track: #222328; --line: #2C2E33;
+  --ink: #EDECE8; --ink2: #CFCEC9; --muted: #9A9CA4; --ring: #5E6067; --skip: #3A3C43;
+  --acc: #86A8F0; --on-acc: #0D1630; --link: #9AB6F3;
+  --acc-soft: #1C2539; --acc-soft2: #22304C; --acc-line: #2F3F63; --acc-text: #C6D6F8;
+  --min: #4A68A8; --min-line: #5674AE;
+  --warn: #E9C489; --warn-bg: #33291A;
   color-scheme: dark;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; background: var(--bg); color: var(--ink); }
 body {
   font: 16px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-  padding: env(safe-area-inset-top) 0 calc(72px + env(safe-area-inset-bottom));
+  padding: 0 0 calc(64px + env(safe-area-inset-bottom));
   -webkit-text-size-adjust: 100%;
 }
-main { max-width: 560px; margin: 0 auto; padding: 12px 16px 24px; }
-h1 { font-size: 22px; margin: 4px 0 2px; letter-spacing: -0.01em; }
-h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 22px 4px 8px; font-weight: 600;
-  display: flex; justify-content: space-between; gap: 8px; }
-h2 .cnt { text-transform: none; letter-spacing: 0; font-variant-numeric: tabular-nums; }
-.muted { color: var(--muted); }
-.small { font-size: 13px; }
-.card { background: var(--card); border-radius: var(--radius); padding: 14px; border: 1px solid var(--line); }
-.stack > * + * { margin-top: 10px; }
+body.lock { overflow: hidden; }
+main { max-width: 560px; margin: 0 auto; padding: calc(env(safe-area-inset-top) + 18px) 16px 28px; }
 button, select, input, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
+.ic { flex: none; display: block; }
+.muted { color: var(--muted); }
+h1 { margin: 2px 0 0; font-size: 32px; line-height: 1.1; font-weight: 700; letter-spacing: -0.02em; }
+.sec { margin: 30px 4px 0; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.sec h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.sec .cnt { font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; }
+.segbar { margin: 10px 4px 12px; display: grid; gap: 4px; }
+.segbar span { height: 4px; border-radius: 2px; background: var(--track); }
+.segbar span.on { background: var(--acc); }
+.note-s { font-size: 13px; color: var(--muted); margin: 10px 4px 0; line-height: 1.4; }
 
-/* header */
-.daynav { display: flex; align-items: center; gap: 8px; }
-.daynav .title { flex: 1; min-width: 0; }
-.iconbtn { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); font-size: 20px; line-height: 1; }
-.chiprow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
-.chip { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 4px 10px; font-size: 14px; }
-select.chip { appearance: none; -webkit-appearance: none; padding-right: 24px;
-  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
-  background-position: calc(100% - 13px) 55%, calc(100% - 8px) 55%; background-size: 5px 5px; background-repeat: no-repeat; }
-.linkbtn { border: 0; background: none; color: var(--accent); padding: 4px 2px; font-size: 14px; }
+/* шапка дня */
+.top { display: flex; align-items: flex-end; gap: 8px; }
+.top .tt { flex: 1; min-width: 0; }
+.kicker { font-size: 14px; color: var(--muted); }
+.kicker b { color: var(--link); font-weight: 600; }
+.nbtn { width: 44px; height: 44px; flex: none; border-radius: 14px; border: 1px solid var(--line); background: var(--card);
+  display: flex; align-items: center; justify-content: center; padding: 0; color: var(--ink); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.pill { position: relative; height: 44px; padding: 0 14px; border-radius: 22px; display: inline-flex; align-items: center; gap: 8px;
+  font-size: 15px; font-weight: 500; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+.pill .ic.acc { color: var(--acc); }
+.pill .ic.mut { color: var(--muted); }
+.pill select { position: absolute; inset: 0; width: 100%; opacity: 0; font-size: 16px; }
+.pill.sw { padding-right: 10px; }
+.knob { width: 34px; height: 20px; border-radius: 10px; background: var(--ring); position: relative; flex: none; transition: background .15s; }
+.knob::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: transform .15s; }
+.pill[aria-checked="true"] { border-color: var(--acc-line); background: var(--acc-soft); }
+.pill[aria-checked="true"] .knob { background: var(--acc); }
+.pill[aria-checked="true"] .knob::after { transform: translateX(14px); }
+.linkbtn { border: 0; background: none; color: var(--link); padding: 0 6px; font-size: 15px; font-weight: 600; height: 44px; }
 
-.banner { display: flex; align-items: center; gap: 10px; background: var(--accent-soft); border-radius: var(--radius); padding: 12px 14px; margin-top: 12px; }
-.banner span { flex: 1; }
-.banner button { border: 0; background: var(--accent); color: #fff; border-radius: 10px; padding: 8px 12px; font-weight: 600; }
+/* баннеры */
+.banner { margin-top: 16px; display: flex; align-items: center; gap: 12px; padding: 8px 8px 8px 14px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; }
+.banner > span { flex: 1; font-size: 15px; line-height: 1.3; }
+.banner .ic { color: var(--link); }
+.softbtn { height: 44px; padding: 0 16px; border-radius: 12px; border: 0; background: var(--acc-soft2); color: var(--link); font-weight: 600; font-size: 15px; }
+.hint { margin-top: 12px; display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; background: var(--acc-soft2); color: var(--acc-text); border-radius: 14px; font-size: 14px; line-height: 1.4; }
+.hint .ic { margin-top: 1px; }
 
-/* «дальше» */
-.next { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; margin-top: 12px;
-  background: var(--now); border: 1px solid var(--now-line); }
-.next .lbl { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
-.next .t { font-weight: 600; font-size: 17px; }
-.next .tm { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
-.next .go { grid-row: 1 / span 3; grid-column: 2; border: 0; background: var(--accent); color: #fff; border-radius: 12px; padding: 12px 14px; font-weight: 600; }
+/* карточка «Сейчас» */
+.now { margin-top: 16px; padding: 18px; background: var(--acc-soft); border: 1px solid var(--acc-line); border-radius: 22px; display: flex; flex-direction: column; gap: 14px; }
+.now .nh { display: flex; align-items: center; justify-content: space-between; }
+.badge { display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: 13px; background: var(--acc); color: var(--on-acc);
+  font-size: 12px; font-weight: 700; letter-spacing: .06em; }
+.badge.sm { height: 20px; padding: 0 8px; border-radius: 10px; font-size: 11px; letter-spacing: .05em; }
+.eta { display: inline-flex; align-items: center; gap: 5px; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.now .nt { display: flex; align-items: center; gap: 10px; }
+.now .nt .ic { color: var(--link); }
+.now h2 { margin: 0; font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -0.01em; }
+.now .nn { margin: 6px 0 0; display: flex; align-items: center; gap: 6px; font-size: 15px; color: var(--ink2); }
+.now .nn.light { color: var(--acc-text); }
+.now .np { display: flex; align-items: center; gap: 10px; }
+.now .np > span:first-child { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
+.now .track { flex: 1; height: 4px; border-radius: 2px; background: var(--acc-line); overflow: hidden; }
+.now .track i { display: block; height: 100%; background: var(--acc); }
+.bigbtn { height: 56px; border: 0; border-radius: 16px; background: var(--acc); color: var(--on-acc); font-size: 17px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; }
+.now .then { font-size: 14px; color: var(--muted); }
+.now .then span { color: var(--ink2); }
+.alldone { margin-top: 16px; padding: 18px; display: flex; align-items: center; gap: 14px; background: var(--acc-soft); border: 1px solid var(--acc-line); border-radius: 22px; }
+.alldone .moon { width: 48px; height: 48px; border-radius: 50%; background: var(--acc); color: var(--on-acc); display: flex; align-items: center; justify-content: center; flex: none; }
+.alldone b { display: block; font-size: 18px; }
+.alldone span { color: var(--ink2); font-size: 15px; }
 
-/* habits */
-.habit .head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
-.habit .name { font-weight: 600; }
-.opts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.opt { border: 1px solid var(--line); background: transparent; border-radius: 12px; padding: 10px 4px; min-height: 48px; font-size: 14px; line-height: 1.2; }
-.opt[aria-pressed="true"][data-v="done"] { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
-.opt[aria-pressed="true"][data-v="min"] { background: var(--min-soft); border-color: var(--min); font-weight: 600; }
-.opt[aria-pressed="true"][data-v="skip"] { background: var(--line); border-color: var(--skip); font-weight: 600; }
+/* группы и строки плана */
+.grpc { width: 100%; margin-top: 10px; display: flex; align-items: center; gap: 12px; padding: 12px 14px 12px 16px; min-height: 64px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 18px; text-align: left; color: var(--ink); }
+.grpc .gt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.grpc .gt b { font-size: 16px; font-weight: 600; }
+.grpc .gt b span { font-weight: 400; color: var(--muted); }
+.grpc .gt > span { font-size: 14px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cnt2 { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.grpc .ic, .grph .ic { color: var(--muted); }
+.dotc { width: 26px; height: 26px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 2px var(--ring); }
+.dotc.on { background: var(--acc); box-shadow: none; color: var(--on-acc); }
+.grp { margin-top: 10px; overflow: hidden; }
+.grph { width: 100%; display: flex; align-items: center; gap: 10px; padding: 0 14px 0 16px; height: 52px; background: none; border: 0; text-align: left; color: var(--ink); }
+.grph b { font-size: 16px; }
+.grph .rng { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.row { display: grid; grid-template-columns: 48px minmax(0, 1fr); padding: 8px 14px 12px 6px; border-top: 1px solid var(--line); }
+.row.now { background: var(--acc-soft); }
+.row.past:not(.done) .rbody { opacity: .55; }
+.chk { width: 48px; height: 48px; padding: 0; border: 0; background: none; display: flex; align-items: center; justify-content: center; }
+.chk .c { width: 28px; height: 28px; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--ring); display: flex; align-items: center; justify-content: center; color: var(--on-acc);
+  transition: transform .15s, background .15s; }
+.row.now .chk .c { box-shadow: inset 0 0 0 2px var(--acc); }
+.chk[aria-pressed="true"] .c { background: var(--acc); box-shadow: none; }
+.chk.pop .c { animation: pop .28s ease-out; }
+@keyframes pop { 0% { transform: scale(.7); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+.chk:disabled { opacity: .35; }
+.rb { min-width: 0; padding-top: 5px; }
+.rbody { display: block; width: 100%; padding: 0; border: 0; background: none; text-align: left; color: var(--ink); }
+.rt { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.rtitle { display: flex; align-items: center; gap: 8px; margin-top: 2px; font-size: 16px; font-weight: 600; line-height: 1.3; }
+.rtitle .ic { color: var(--muted); }
+.row.done .rtitle { color: var(--muted); }
+.rhint { display: flex; align-items: flex-start; gap: 6px; margin-top: 3px; font-size: 14px; line-height: 1.35; color: var(--muted); }
+.rhint.light { color: var(--acc-text); }
+.rhint .ic { margin-top: 1px; }
+.npill { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 6px 10px; border-radius: 10px; background: var(--field); font-size: 14px; line-height: 1.3; color: var(--ink2); max-width: 100%; }
+.npill span { overflow-wrap: anywhere; }
+.addnote { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; font-size: 14px; font-weight: 500; color: var(--link); }
+.plink { display: inline-flex; align-items: center; gap: 2px; min-height: 40px; margin-top: 2px; font-size: 14px; font-weight: 600; color: var(--link); background: none; border: 0; padding: 0; }
+.noteed { display: block; width: 100%; margin-top: 10px; min-height: 70px; padding: 10px 12px; border: 1.5px solid var(--acc); border-radius: 12px;
+  background: var(--field); color: var(--ink); font-size: 16px; line-height: 1.35; resize: none; outline: none; }
+.saved { display: block; margin-top: 6px; font-size: 12px; color: var(--muted); }
+
+/* привычки */
+.habs { margin-top: 10px; padding: 0 14px; }
+.hab { padding: 14px 0; }
+.hab + .hab { border-top: 1px solid var(--line); }
+.habh { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.habh .ic { color: var(--muted); }
+.habh .hn { font-size: 16px; font-weight: 600; flex: 1; }
+.habh .hs { font-size: 13px; color: var(--muted); }
+.habh .hs.on { color: var(--link); }
+.opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.opt { min-height: 56px; padding: 6px 4px; border-radius: 12px; border: 1px solid var(--line); background: transparent; color: var(--ink);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1.2; }
+.opt b { font-size: 15px; font-weight: 600; }
+.opt small { font-size: 12px; color: var(--muted); }
+.opt[aria-pressed="true"][data-v="done"] { background: var(--acc); border-color: var(--acc); color: var(--on-acc); }
+.opt[aria-pressed="true"][data-v="done"] small { color: var(--on-acc); }
+.opt[aria-pressed="true"][data-v="min"] { background: var(--acc-soft2); border-color: var(--min-line); color: var(--acc-text); }
+.opt[aria-pressed="true"][data-v="min"] small { color: var(--acc-text); }
+.opt[aria-pressed="true"][data-v="skip"] { background: var(--skip); border-color: var(--skip); }
 .opt:disabled { opacity: .45; }
 
-.switch { display: flex; align-items: center; gap: 12px; }
-.switch .txt { flex: 1; }
-.toggle { position: relative; width: 52px; height: 32px; border-radius: 999px; border: 0; background: var(--line); flex: none; transition: background .15s; }
-.toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .15s; }
-.toggle[aria-checked="true"] { background: var(--accent); }
-.toggle[aria-checked="true"]::after { transform: translateX(20px); }
+/* итог дня */
+.sumcard { margin-top: 30px; display: flex; flex-direction: column; gap: 14px; padding: 16px; width: 100%; text-align: left; color: var(--ink); }
+.sumcard .sh { display: flex; align-items: center; justify-content: space-between; }
+.sumcard .sh b { font-size: 20px; letter-spacing: -0.01em; }
+.sumcard .sh span { display: inline-flex; align-items: center; gap: 2px; font-size: 15px; font-weight: 600; color: var(--link); }
+.tiles { display: grid; gap: 6px; }
+.tile { display: flex; flex-direction: column; gap: 2px; padding: 10px 8px; border-radius: 12px; background: var(--field); min-width: 0; }
+.tile b { font-size: 15px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile b.no { color: var(--muted); }
+.tile span { font-size: 12px; color: var(--muted); }
 
-/* checklist: план и упражнения */
-.list { padding: 0; }
-.row { display: grid; grid-template-columns: 34px 1fr; gap: 4px 10px; padding: 10px 14px 10px 11px; border-left: 3px solid transparent; align-items: start; }
-.row + .row { border-top: 1px solid var(--line); }
-.row .time { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; }
-.row .t { line-height: 1.3; }
-.row .note { color: var(--muted); font-size: 13px; margin-top: 2px; }
-.row .unote { font-size: 14px; margin-top: 4px; }
-.row .body { cursor: pointer; min-width: 0; }
-.row.past:not(.done) .body { opacity: .55; }
-.row.now { background: var(--now); border-left-color: var(--now-line); }
-.row.now .time { color: var(--ink); font-weight: 600; }
-.row.done .t { color: var(--muted); }
-.chk { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--skip); background: transparent; color: transparent;
-  font-size: 16px; font-weight: 700; line-height: 1; padding: 0; margin-top: 2px; }
-.chk[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
-.chk:disabled { opacity: .35; }
-.noteed { grid-column: 2 / -1; width: 100%; min-height: 64px; border: 1px solid var(--line); background: var(--bg); border-radius: 10px;
-  padding: 8px 10px; font-size: 16px; resize: vertical; margin-top: 4px; }
-.exnote { grid-column: 2 / -1; width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 6px 9px; font-size: 16px; margin-top: 2px; }
-.target { color: var(--muted); font-size: 14px; }
-.hint { background: var(--min-soft); border-radius: 12px; padding: 10px 12px; font-size: 14px; margin-top: 10px; }
+.shade { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 20; animation: fade .2s; }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; top: calc(env(safe-area-inset-top) + 40px); max-width: 560px; margin: 0 auto; z-index: 21;
+  background: var(--sheet); border-radius: 24px 24px 0 0; padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+  display: flex; flex-direction: column; animation: up .25s ease-out; }
+@keyframes fade { from { opacity: 0; } }
+@keyframes up { from { transform: translateY(40px); opacity: 0; } }
+.sheet .grab { display: block; width: 36px; height: 5px; border-radius: 3px; background: var(--ring); margin: 0 auto 14px; flex: none; }
+.sheet .shh { display: flex; align-items: flex-start; gap: 12px; flex: none; }
+.sheet .shh div { flex: 1; min-width: 0; }
+.sheet h2 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.01em; }
+.sheet .sub { margin-top: 2px; font-size: 14px; color: var(--muted); }
+.xbtn { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--field); display: flex; align-items: center; justify-content: center; padding: 0; flex: none; }
+.sheet .scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; margin: 0 -16px; padding: 0 16px 12px; }
+.slist { margin-top: 18px; background: var(--field); border-radius: 16px; }
+.slist div { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 14px; }
+.slist div + div { border-top: 1px solid var(--line); }
+.slist .ic { color: var(--muted); }
+.slist span { flex: 1; font-size: 15px; }
+.slist b { display: inline-flex; align-items: center; gap: 7px; font-size: 15px; font-variant-numeric: tabular-nums; }
+.slist b i { width: 8px; height: 8px; border-radius: 50%; display: block; }
+.slist b.no { color: var(--muted); font-weight: 500; }
+.sheet h3 { margin: 22px 2px 2px; font-size: 15px; font-weight: 700; }
+.sheet ul { margin: 0; padding: 0 2px; list-style: none; }
+.sheet li { padding: 10px 0; border-top: 1px solid var(--line); font-size: 15px; line-height: 1.4; overflow-wrap: anywhere; }
+.sheet li span { display: block; font-size: 13px; color: var(--muted); }
+.sheet label { display: block; margin: 16px 2px 6px; font-size: 15px; font-weight: 700; }
+.ta { display: block; width: 100%; min-height: 88px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--field);
+  color: var(--ink); font-size: 16px; line-height: 1.4; resize: none; }
+.sheet .bigbtn { flex: none; margin-top: 10px; }
 
-/* report */
-.rep .line { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; }
-.rep .line b { font-variant-numeric: tabular-nums; }
-.rep ul { margin: 8px 0 0; padding-left: 18px; font-size: 14px; }
-.rep li + li { margin-top: 3px; }
-.rep textarea { width: 100%; min-height: 70px; border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 8px 10px; font-size: 16px; resize: vertical; margin-top: 10px; }
+/* тренировка */
+.seg { margin-top: 16px; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+.seg button { height: 40px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font-size: 15px; font-weight: 500;
+  display: flex; align-items: center; justify-content: center; gap: 6px; }
+.seg button[aria-pressed="true"] { background: var(--skip); color: var(--ink); font-weight: 600; }
+.exs { margin-top: 0; overflow: hidden; }
+.ex { display: grid; grid-template-columns: 48px minmax(0, 1fr); padding: 8px 14px 12px 6px; }
+.ex + .ex { border-top: 1px solid var(--line); }
+.ex .eh { display: flex; align-items: baseline; gap: 10px; padding-top: 12px; }
+.ex .eh b { flex: 1; font-size: 16px; font-weight: 600; line-height: 1.3; }
+.ex.done .eh b { color: var(--muted); }
+.ex .eh span { font-size: 14px; color: var(--muted); white-space: nowrap; }
+.ex input { display: block; width: 100%; margin-top: 8px; height: 40px; padding: 0 10px; border: 1px solid transparent; border-radius: 10px;
+  background: var(--field); color: var(--ink); font-size: 16px; outline: none; }
+.ex input:focus { border-color: var(--acc); }
+.ex input::placeholder, .ta::placeholder, .noteed::placeholder, .fld::placeholder { color: #6C6E75; }
+.secbtn { margin-top: 12px; width: 100%; height: 48px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.empty { margin-top: 0; padding: 26px 18px 18px; text-align: center; }
+.empty .eic { width: 52px; height: 52px; margin: 0 auto 12px; border-radius: 50%; background: var(--acc-soft2); color: var(--link); display: flex; align-items: center; justify-content: center; }
+.empty b { display: block; font-size: 18px; }
+.empty p { margin: 6px 0 16px; font-size: 14px; color: var(--muted); line-height: 1.4; }
+.edrow { display: grid; grid-template-columns: 22px minmax(0, 1fr) 44px; gap: 8px 6px; align-items: center; padding: 12px 8px 12px 10px; }
+.edrow + .edrow { border-top: 1px solid var(--line); }
+.edrow .num { font-size: 13px; color: var(--muted); text-align: center; }
+.edrow .fld2 { grid-column: 2; }
+.fld { width: 100%; height: 44px; padding: 0 12px; border: 1px solid transparent; border-radius: 10px; background: var(--field); color: var(--ink); font-size: 16px; outline: none; }
+.fld:focus { border-color: var(--acc); }
+.fld.b { font-weight: 600; }
+.xs { width: 44px; height: 44px; border: 0; background: none; color: var(--muted); display: flex; align-items: center; justify-content: center; padding: 0; }
+.dashed { margin-top: 12px; width: 100%; height: 48px; border-radius: 14px; border: 1.5px dashed var(--line); background: transparent; color: var(--link);
+  font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.savebar { position: fixed; left: 0; right: 0; bottom: calc(57px + env(safe-area-inset-bottom)); z-index: 6; background: var(--bg); border-top: 1px solid var(--line);
+  padding: 10px 16px; display: grid; grid-template-columns: 1fr 2fr; gap: 8px; }
+.savebar button { height: 48px; border-radius: 14px; font-size: 16px; font-weight: 600; }
+.savebar .cancel { border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+.savebar .ok { border: 0; background: var(--acc); color: var(--on-acc); }
+.pad-save { height: 70px; }
 
-/* stats */
-.periodnav { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-.periodnav .label { flex: 1; text-align: center; font-weight: 600; }
-.stat { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: baseline; }
-.stat + .stat { margin-top: 12px; }
-.stat .val { font-variant-numeric: tabular-nums; font-weight: 600; }
-.bar { grid-column: 1 / -1; height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; display: flex; }
+/* итоги */
+.lead { margin: 8px 0 0; font-size: 15px; line-height: 1.4; color: var(--muted); }
+.pcard { margin-top: 10px; padding: 12px 14px 4px; }
+.pcard.m { padding-bottom: 16px; }
+.pnav { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.pnav span { flex: 1; text-align: center; font-size: 16px; font-weight: 600; }
+.st { padding: 12px 0; }
+.st + .st { border-top: 1px solid var(--line); }
+.sth { display: flex; align-items: center; gap: 8px; }
+.sth .ic { color: var(--muted); }
+.sth span { flex: 1; font-size: 15px; }
+.sth b { font-size: 16px; font-variant-numeric: tabular-nums; }
+.sth b small { font-size: 16px; font-weight: 400; color: var(--muted); }
+.bar { margin-top: 8px; height: 8px; border-radius: 4px; background: var(--track); overflow: hidden; display: flex; }
 .bar i { display: block; height: 100%; }
-.bar .d { background: var(--accent); } .bar .m { background: var(--min); }
-.grid7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-.grid7 .wd { text-align: center; font-size: 12px; color: var(--muted); padding-bottom: 2px; }
-.cell { border: 1px solid var(--line); border-radius: 10px; background: transparent; padding: 6px 0 7px; display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 48px; }
-.cell.today { border-color: var(--accent); }
+.bar .d { background: var(--acc); } .bar .m { background: var(--min); }
+.sx { margin-top: 6px; font-size: 13px; color: var(--muted); }
+.cal { margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal .wd { text-align: center; font-size: 12px; color: var(--muted); padding-bottom: 2px; }
+.cell { height: 52px; padding: 0; border-radius: 12px; border: 1px solid var(--line); background: var(--card); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 6px; color: var(--ink); }
+.cell b { font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.cell.today { border: 2px solid var(--acc); }
+.cell.today b { font-weight: 700; color: var(--link); }
 .cell.future { opacity: .4; }
-.cell .n { font-size: 13px; font-variant-numeric: tabular-nums; }
 .dots { display: flex; gap: 3px; }
-.dot { width: 7px; height: 7px; border-radius: 50%; border: 1px solid var(--skip); }
-.dot.done { background: var(--accent); border-color: var(--accent); }
-.dot.min { background: var(--min); border-color: var(--min); }
-.dot.skip { background: var(--skip); }
-.dot.na { border-color: transparent; }
-.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin-top: 10px; }
-.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; display: block; box-shadow: inset 0 0 0 1.5px var(--ring); }
+.dot.done { background: var(--acc); box-shadow: none; }
+.dot.min { background: var(--min); box-shadow: none; }
+.dot.skip { background: var(--skip); box-shadow: inset 0 0 0 1px var(--ring); }
+.dot.na { box-shadow: none; }
+.legend { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 13px; color: var(--muted); }
+.legend > span { display: inline-flex; align-items: center; gap: 6px; }
+.legend > span:first-child { width: 100%; }
+.legend .dot { width: 9px; height: 9px; }
 
-/* settings / editors */
-.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: var(--line); border-radius: 10px; padding: 2px; gap: 2px; }
-.seg button { border: 0; background: transparent; border-radius: 8px; padding: 7px 4px; font-size: 14px; }
-.seg button[aria-pressed="true"] { background: var(--card); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.12); }
-.wkrow { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; }
-.wkrow + .wkrow { border-top: 1px solid var(--line); }
-.wkrow select { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 6px 8px; }
-.ed { display: grid; grid-template-columns: 1fr 1fr auto; gap: 6px; align-items: center; }
-.ed + .ed { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
-.ed input { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 7px 8px; min-width: 0; width: 100%; font-size: 16px; }
-.ed input[data-f="t"], .ed input[data-f="n"] { grid-column: 1 / -1; }
-.ed.ex { grid-template-columns: 1fr auto; }
-.ed.ex input[data-f="n"] { grid-column: 1 / 2; }
-.ed .del { border: 0; background: none; color: var(--muted); font-size: 20px; width: 32px; }
-.btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-.btn { border: 1px solid var(--line); background: var(--card); border-radius: 10px; padding: 10px 14px; }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
-.warn { color: #b5602a; font-size: 14px; margin-top: 8px; }
+/* настройки */
+.list { margin-top: 10px; padding: 0 14px; }
+.wrow { display: flex; align-items: center; justify-content: space-between; min-height: 52px; }
+.wrow + .wrow { border-top: 1px solid var(--line); }
+.wsel { position: relative; display: inline-flex; align-items: center; gap: 6px; font-size: 15px; color: var(--ink2); height: 44px; }
+.wsel .ic.acc { color: var(--link); }
+.wsel .ic.mut { color: var(--muted); }
+.wsel select { position: absolute; inset: 0; opacity: 0; width: 100%; font-size: 16px; }
+.tcard { margin-top: 10px; padding: 12px; }
+.tcard .seg { margin-top: 0; }
+.trow { padding: 12px 0; }
+.trow + .trow { border-top: 1px solid var(--line); }
+.trow .tm { display: flex; align-items: center; gap: 8px; }
+.trow .tm .dash { color: var(--muted); }
+.trow input[type="time"] { width: 112px; height: 44px; padding: 0 10px; border: 1px solid transparent; border-radius: 10px; background: var(--field); color: var(--ink); font-size: 16px; }
+.trow .tm .xs { margin-left: auto; }
+.trow .fld { margin-top: 8px; }
+.warn { margin-top: 12px; display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: var(--warn-bg); color: var(--warn); font-size: 14px; line-height: 1.4; }
+.btn2 { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.btn2 button { height: 48px; border-radius: 14px; font-size: 15px; font-weight: 600; }
+.btn2 .plain { border: 0; background: transparent; color: var(--ink); }
+.btn2 .ok { border: 0; background: var(--acc); color: var(--on-acc); }
+.bcard { margin-top: 10px; padding: 14px; }
+.bcard p { margin: 0 0 12px; font-size: 15px; line-height: 1.4; }
+.bcard .bigbtn { height: 50px; font-size: 16px; }
+.bcard .secbtn { margin-top: 8px; border: 0; background: transparent; }
 
-/* tabbar */
-nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line);
-  display: grid; grid-template-columns: repeat(4, 1fr); padding-bottom: env(safe-area-inset-bottom); z-index: 5; }
-nav.tabs button { border: 0; background: none; padding: 8px 0 10px; font-size: 12px; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 2px; }
-nav.tabs button .ic { font-size: 22px; line-height: 1.1; filter: grayscale(1); opacity: .7; }
-nav.tabs button[aria-current="page"] { color: var(--accent); font-weight: 600; }
-nav.tabs button[aria-current="page"] .ic { filter: none; opacity: 1; }
+/* таб-бар */
+nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  background: var(--card); border-top: 1px solid var(--line); padding: 6px 4px env(safe-area-inset-bottom); }
+nav.tabs button { height: 50px; border: 0; background: none; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; font-size: 11px; font-weight: 500; color: var(--muted); }
+nav.tabs button[aria-current="page"] { color: var(--link); font-weight: 600; }
 
-.toast { position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--ink); color: var(--bg);
-  padding: 10px 14px; border-radius: 12px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 9;
-  width: max-content; max-width: calc(100% - 32px); text-align: center; white-space: pre-line; }
-.toast.show { opacity: .94; }
+/* сообщение после отметки */
+.toast { position: fixed; left: 16px; right: 16px; max-width: 528px; margin: 0 auto; bottom: calc(72px + env(safe-area-inset-bottom)); z-index: 30;
+  display: flex; align-items: flex-start; gap: 10px; padding: 12px 16px; border-radius: 16px; background: var(--ink); color: #1B1C1F;
+  box-shadow: 0 6px 24px rgba(0,0,0,.4); opacity: 0; transform: translateY(8px); transition: opacity .2s, transform .2s; pointer-events: none; }
+.toast.show { opacity: 1; transform: none; }
+.toast .ic { margin-top: 2px; }
+.toast b { display: block; font-size: 15px; }
+.toast span { font-size: 14px; color: #3A3C42; }
 </style>
 </head>
 <body>
 <main id="app"></main>
 <nav class="tabs" aria-label="Разделы">
-  <button data-tab="today"><span class="ic">📋</span>Сегодня</button>
-  <button data-tab="train"><span class="ic">🏋️</span>Тренировка</button>
-  <button data-tab="stats"><span class="ic">📊</span>Итоги</button>
-  <button data-tab="settings"><span class="ic">⚙️</span>Настройки</button>
+  <button data-tab="today"></button>
+  <button data-tab="train"></button>
+  <button data-tab="stats"></button>
+  <button data-tab="settings"></button>
 </nav>
 <div class="toast" id="toast" role="status"></div>
 <input type="file" id="importFile" accept="application/json,.json" hidden>
@@ -198,52 +343,97 @@ nav.tabs button[aria-current="page"] .ic { filter: none; opacity: 1; }
 "use strict";
 const KEY = "rezhim.v1";
 
+// ---------- иконки (Lucide) ----------
+const I = {
+  chevL: '<path d="m15 18-6-6 6-6"/>', chevR: '<path d="m9 18 6-6-6-6"/>',
+  chevD: '<path d="m6 9 6 6 6-6"/>', chevU: '<path d="m18 15-6-6-6 6"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>', plus: '<path d="M5 12h14"/><path d="M12 5v14"/>', x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  dumbbell: '<path d="M14.4 14.4 9.6 9.6"/><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"/><path d="m21.5 21.5-1.4-1.4"/><path d="M3.9 3.9 2.5 2.5"/><path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"/>',
+  activity: '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>',
+  leaf: '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
+  feather: '<path d="M12.67 19a2 2 0 0 0 1.416-.588l6.154-6.172a6 6 0 0 0-8.49-8.49L5.586 9.914A2 2 0 0 0 5 11.328V18a1 1 0 0 0 1 1z"/><path d="M16 8 2 22"/><path d="M17.5 15H9"/>',
+  calCheck: '<path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  apple: '<path d="M12 6.5c-1.5-1.2-4-1.4-5.6.2C4.6 8.5 4.7 12 6.3 15c1.2 2.2 2.8 4 4.2 4 .7 0 1-.4 1.5-.4s.8.4 1.5.4c1.4 0 3-1.8 4.2-4 1.6-3 1.7-6.5-.1-8.3-1.6-1.6-4.1-1.4-5.6-.2z"/><path d="M12 6.5c0-2 1-3.5 3-4"/>',
+  briefcase: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+  utensils: '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>',
+  code: '<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/>',
+  headphones: '<path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>',
+  monitorOff: '<path d="M17 17H4a2 2 0 0 1-2-2V5c0-1.5 1-2 1-2"/><path d="M22 15V5a2 2 0 0 0-2-2H9"/><path d="M8 21h8"/><path d="M12 17v4"/><path d="m2 2 20 20"/>',
+  bed: '<path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+  moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+  gamepad: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+  dot: '<circle cx="12" cy="12" r="3"/>',
+  listChecks: '<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
+  chart: '<path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16v-5"/><path d="M12 16V7"/><path d="M17 16v-3"/>',
+  sliders: '<path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/>',
+  pencil: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+  share: '<path d="M12 2v13"/><path d="m16 6-4-4-4 4"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>',
+  info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+  download: '<path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/>',
+  upload: '<path d="M12 3v12"/><path d="m17 8-5-5-5 5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'
+};
+const ic = (n, s = 18, cls = "", sw = 2) =>
+  `<svg class="ic ${cls}" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n] || I.dot}</svg>`;
+// иконка пункта плана по названию
+function blockIcon(t) {
+  const s = t.toLowerCase();
+  const map = [[/подъём|подъем|утро|завтрак/, "sun"], [/работ/, "briefcase"], [/перекус/, "apple"], [/зал/, "dumbbell"], [/пресс/, "activity"],
+    [/ужин|обед|еда/, "utensils"], [/python|питон|код/, "code"], [/спокойн|музык/, "headphones"], [/компьютер|гигиен/, "monitorOff"],
+    [/кроват|сон|засып/, "bed"], [/игр|свободно|отдых/, "gamepad"]];
+  for (const [re, n] of map) if (re.test(s)) return n;
+  return "dot";
+}
+const cleanTitle = t => String(t || "").replace(/^[\p{Extended_Pictographic}\uFE0F\u200D\s]+/u, "");
+const TYPE_ICON = { gym: "dumbbell", press: "activity", rest: "leaf" };
+
 // h — какая привычка отмечается вместе с пунктом плана
 const DEFAULT_TEMPLATES = {
   gym: { name: "Зал", icon: "🏋️", blocks: [
-    { id: "g1", s: "09:00", e: "09:45", t: "☀️ Подъём · завтрак", n: "Отметь вчерашний день" },
-    { id: "g2", s: "10:00", e: "19:00", t: "💼 Работа", n: "Обед — окно 13:00–15:00" },
-    { id: "g3", s: "19:00", e: "19:30", t: "🍌 Перекус · сборы в зал", n: "Банан, йогурт, вода, форма" },
-    { id: "g4", s: "19:30", e: "22:00", t: "🏋️ Зал (выход 19:30)", n: "Тренировка 20:00–21:30", l: "30 минут лёгкой тренировки или 20 минут прогулки", h: "tr" },
-    { id: "g5", s: "22:00", e: "22:30", t: "🍽️ Ужин · душ · отдых", n: "Ничего не добавлять" },
-    { id: "g6", s: "22:30", e: "23:10", t: "🐍 Python", n: "40 минут", l: "10 минут — это засчитывается", h: "py" },
-    { id: "g7", s: "23:10", e: "23:30", t: "🎧 Спокойные 20 минут", n: "Только то, что легко бросить" },
-    { id: "g8", s: "23:30", e: "00:00", t: "🪥 Без компьютера · гигиена", n: "", l: "Если не успел — к 23:45" },
-    { id: "g9", s: "00:00", e: "01:00", t: "🛏️ Кровать, засыпание", n: "Без экрана. В 01:00 — сон" }
+    { id: "g1", s: "09:00", e: "09:45", t: "Подъём · завтрак", n: "Отметь вчерашний день" },
+    { id: "g2", s: "10:00", e: "19:00", t: "Работа", n: "Обед: окно 13:00–15:00" },
+    { id: "g3", s: "19:00", e: "19:30", t: "Перекус · сборы в зал", n: "Банан, йогурт, вода, форма" },
+    { id: "g4", s: "19:30", e: "22:00", t: "Зал (выход 19:30)", n: "Тренировка 20:00–21:30", l: "30 минут лёгкой тренировки или 20 минут прогулки", h: "tr" },
+    { id: "g5", s: "22:00", e: "22:30", t: "Ужин · душ · отдых", n: "Ничего не добавлять" },
+    { id: "g6", s: "22:30", e: "23:10", t: "Python", n: "40 минут", l: "10 минут, и это засчитывается", h: "py" },
+    { id: "g7", s: "23:10", e: "23:30", t: "Спокойные 20 минут", n: "Только то, что легко бросить" },
+    { id: "g8", s: "23:30", e: "00:00", t: "Без компьютера · гигиена", n: "", l: "Если не успел, к 23:45" },
+    { id: "g9", s: "00:00", e: "01:00", t: "Кровать, засыпание", n: "Без экрана. В 01:00 сон" }
   ]},
   press: { name: "Пресс", icon: "💪", blocks: [
-    { id: "p1", s: "09:00", e: "09:45", t: "☀️ Подъём · завтрак", n: "Отметь вчерашний день" },
-    { id: "p2", s: "10:00", e: "19:00", t: "💼 Работа", n: "Обед — окно 13:00–15:00" },
-    { id: "p3", s: "19:15", e: "19:45", t: "💪 Пресс дома", n: "До 30 минут, до компьютера", l: "10 минут или один круг", h: "tr" },
-    { id: "p4", s: "19:45", e: "20:45", t: "🍽️ Ужин", n: "Окно 19:45–21:00" },
-    { id: "p5", s: "20:45", e: "22:30", t: "🎮 Игры и отдых", n: "В 22:20 — доигрывай" },
-    { id: "p6", s: "22:30", e: "23:10", t: "🐍 Python", n: "40 минут", l: "10 минут — это засчитывается", h: "py" },
-    { id: "p7", s: "23:10", e: "23:30", t: "🎧 Спокойные 20 минут", n: "Только то, что легко бросить" },
-    { id: "p8", s: "23:30", e: "00:00", t: "🪥 Без компьютера · гигиена", n: "", l: "Если не успел — к 23:45" },
-    { id: "p9", s: "00:00", e: "01:00", t: "🛏️ Кровать, засыпание", n: "Без экрана. В 01:00 — сон" }
+    { id: "p1", s: "09:00", e: "09:45", t: "Подъём · завтрак", n: "Отметь вчерашний день" },
+    { id: "p2", s: "10:00", e: "19:00", t: "Работа", n: "Обед: окно 13:00–15:00" },
+    { id: "p3", s: "19:15", e: "19:45", t: "Пресс дома", n: "До 30 минут, до компьютера", l: "10 минут или один круг", h: "tr" },
+    { id: "p4", s: "19:45", e: "20:45", t: "Ужин", n: "Окно 19:45–21:00" },
+    { id: "p5", s: "20:45", e: "22:30", t: "Игры и отдых", n: "В 22:20 доигрывай" },
+    { id: "p6", s: "22:30", e: "23:10", t: "Python", n: "40 минут", l: "10 минут, и это засчитывается", h: "py" },
+    { id: "p7", s: "23:10", e: "23:30", t: "Спокойные 20 минут", n: "Только то, что легко бросить" },
+    { id: "p8", s: "23:30", e: "00:00", t: "Без компьютера · гигиена", n: "", l: "Если не успел, к 23:45" },
+    { id: "p9", s: "00:00", e: "01:00", t: "Кровать, засыпание", n: "Без экрана. В 01:00 сон" }
   ]},
   rest: { name: "Выходной", icon: "🌿", blocks: [
-    { id: "r1", s: "09:00", e: "10:30", t: "☀️ Подъём · неспешный завтрак", n: "Отметь вчерашний день" },
-    { id: "r2", s: "10:30", e: "13:00", t: "🎮 Свободно", n: "Игры, отдых, прогулка" },
-    { id: "r3", s: "13:00", e: "14:00", t: "🍽️ Обед", n: "Окно 13:00–15:00" },
-    { id: "r4", s: "14:00", e: "19:00", t: "🎮 Свободно", n: "" },
-    { id: "r5", s: "19:00", e: "20:00", t: "🍽️ Ужин", n: "Окно 18:30–20:30" },
-    { id: "r6", s: "20:00", e: "22:30", t: "🎮 Игры и отдых", n: "В 22:20 — доигрывай" },
-    { id: "r7", s: "22:30", e: "23:10", t: "🐍 Python", n: "40 минут", l: "10 минут — это засчитывается", h: "py" },
-    { id: "r8", s: "23:10", e: "23:30", t: "🎧 Спокойные 20 минут", n: "Только то, что легко бросить" },
-    { id: "r9", s: "23:30", e: "00:00", t: "🪥 Без компьютера · гигиена", n: "", l: "Если не успел — к 23:45" },
-    { id: "r10", s: "00:00", e: "01:00", t: "🛏️ Кровать, засыпание", n: "Без экрана. В 01:00 — сон" }
+    { id: "r1", s: "09:00", e: "10:30", t: "Подъём · неспешный завтрак", n: "Отметь вчерашний день" },
+    { id: "r2", s: "10:30", e: "13:00", t: "Свободно", n: "Игры, отдых, прогулка" },
+    { id: "r3", s: "13:00", e: "14:00", t: "Обед", n: "Окно 13:00–15:00" },
+    { id: "r4", s: "14:00", e: "19:00", t: "Свободно", n: "" },
+    { id: "r5", s: "19:00", e: "20:00", t: "Ужин", n: "Окно 18:30–20:30" },
+    { id: "r6", s: "20:00", e: "22:30", t: "Игры и отдых", n: "В 22:20 доигрывай" },
+    { id: "r7", s: "22:30", e: "23:10", t: "Python", n: "40 минут", l: "10 минут, и это засчитывается", h: "py" },
+    { id: "r8", s: "23:10", e: "23:30", t: "Спокойные 20 минут", n: "Только то, что легко бросить" },
+    { id: "r9", s: "23:30", e: "00:00", t: "Без компьютера · гигиена", n: "", l: "Если не успел, к 23:45" },
+    { id: "r10", s: "00:00", e: "01:00", t: "Кровать, засыпание", n: "Без экрана. В 01:00 сон" }
   ]}
 };
 // Временная программа: заменить, когда будет выбрана настоящая
 const DEFAULT_PROGRAMS = {
-  gym: { name: "Зал", icon: "🏋️", items: [] },
-  press: { name: "Пресс", icon: "💪", items: [
+  gym: { name: "Зал", items: [] },
+  press: { name: "Пресс", items: [
     { id: "x1", n: "Скручивания", t: "3 × 15" },
-    { id: "x2", n: "Обратные скручивания (подъём таза)", t: "3 × 12" },
+    { id: "x2", n: "Обратные скручивания", t: "3 × 12" },
     { id: "x3", n: "Планка", t: "3 × 30–45 сек" },
-    { id: "x4", n: "Велосипед", t: "3 × 20 (по 10 на сторону)" },
-    { id: "x5", n: "Боковая планка", t: "2 × 20–30 сек на сторону" }
+    { id: "x4", n: "Велосипед", t: "3 × 20" },
+    { id: "x5", n: "Боковая планка", t: "2 × 20–30 сек" }
   ]}
 };
 // Пн..Вс
@@ -253,12 +443,15 @@ const WD_SHORT = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 const MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
 const MONTHS_NOM = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
 
+// варианты отметок: [главная подпись, уточнение]
 const HABITS = {
-  py:  { name: "🐍 Python", opts: { done: "Да · 40 мин", min: "Минимум · 10 мин", skip: "Пропуск" } },
-  tr:  { gym:   { name: "🏋️ Зал", opts: { done: "Сходил", min: "Лёгкая", skip: "Пропуск" } },
-         press: { name: "💪 Пресс", opts: { done: "До 30 мин", min: "10 мин", skip: "Пропуск" } } },
-  off: { name: "🖥️ Отход в 23:30", opts: { done: "До 23:30", min: "До 23:45", skip: "Позже" } }
+  py:  { name: "Python", icon: "code", opts: { done: ["Да", "40 мин"], min: ["Минимум", "10 мин"], skip: ["Пропуск"] } },
+  tr:  { gym:   { name: "Зал", icon: "dumbbell", opts: { done: ["Сходил"], min: ["Лёгкая"], skip: ["Пропуск"] } },
+         press: { name: "Пресс", icon: "activity", opts: { done: ["До 30 мин"], min: ["10 мин"], skip: ["Пропуск"] } } },
+  off: { name: "Отход в 23:30", short: "Отход", icon: "monitorOff", opts: { done: ["До 23:30"], min: ["До 23:45"], skip: ["Позже"] } }
 };
+const habitDef = (h, plan) => h === "tr" ? HABITS.tr[plan] : HABITS[h];
+const optLabel = o => o.join(" · ");
 
 // ---------- состояние ----------
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -285,7 +478,7 @@ function load() {
 let state = load();
 function save() {
   try { localStorage.setItem(KEY, JSON.stringify(state)); }
-  catch (e) { toast("Не удалось сохранить: память браузера недоступна"); }
+  catch (e) { toast("Не удалось сохранить", "Память браузера недоступна"); }
 }
 let saveTimer;
 const saveSoon = () => { clearTimeout(saveTimer); saveTimer = setTimeout(save, 300); };
@@ -307,6 +500,7 @@ const nowMin = () => shiftMin(`${new Date().getHours()}:${new Date().getMinutes(
 const mondayOf = d => addDays(new Date(d.getFullYear(), d.getMonth(), d.getDate()), -wdIdx(d));
 function span(b) { const s = shiftMin(b.s); let e = shiftMin(b.e); if (e <= s) e += 1440; return [s, e]; }
 const dayTitle = k => { const d = fromKey(k); return `${WD_FULL[wdIdx(d)]}, ${d.getDate()} ${MONTHS[d.getMonth()]}`; };
+const fmtDur = m => m < 60 ? `${m} мин` : `${Math.floor(m / 60)} ч${m % 60 ? ` ${m % 60} мин` : ""}`;
 
 function planOf(k) {
   const m = state.marks[k];
@@ -328,17 +522,28 @@ let monthCur = new Date(fromKey(todayKey()).getFullYear(), fromKey(todayKey()).g
 let edTpl = "gym";
 let openBlock = null;     // пункт плана с открытой заметкой
 let focusNote = false;
+let popId = null;         // пункт, у которого только что поставили галочку
+let groupOpen = {};       // свёрнутые и раскрытые группы: «день|группа» → true/false
+let sheetOpen = false;    // шторка «Итог дня»
 let trType = null;        // программа на экране «Тренировка», если выбрана вручную
 let trEdit = false;
+let tplWarn = "";
 let toastTimer;
-function toast(msg) {
+function toast(title, sub) {
   const el = document.getElementById("toast");
-  el.textContent = msg; el.classList.add("show");
+  el.innerHTML = `${ic("check", 18, "", 2.5)}<div><b>${esc(title)}</b>${sub ? `<span>${esc(sub)}</span>` : ""}</div>`;
+  el.classList.add("show");
   clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
 }
 
+const TABS = { today: ["listChecks", "Сегодня"], train: ["dumbbell", "Тренировка"], stats: ["chart", "Итоги"], settings: ["sliders", "Настройки"] };
 function render() {
-  document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-current", b.dataset.tab === tab ? "page" : "false"));
+  document.querySelectorAll("nav.tabs button").forEach(b => {
+    const [icn, label] = TABS[b.dataset.tab], cur = b.dataset.tab === tab;
+    b.setAttribute("aria-current", cur ? "page" : "false");
+    b.innerHTML = `${ic(icn, 24, "", cur ? 2 : 1.8)}<span>${label}</span>`;
+  });
+  document.body.classList.toggle("lock", tab === "today" && sheetOpen);
   if (tab === "today") renderToday();
   else if (tab === "train") renderTrain();
   else if (tab === "stats") renderStats();
@@ -346,28 +551,27 @@ function render() {
 }
 
 function dayHeader(k) {
-  const plan = planOf(k), isToday = k === todayKey();
-  return `<div class="daynav">
-      <button class="iconbtn" data-act="prev" aria-label="Предыдущий день">‹</button>
-      <div class="title"><h1>${dayTitle(k)}</h1></div>
-      <button class="iconbtn" data-act="next" aria-label="Следующий день">›</button>
+  const plan = planOf(k), tk = todayKey(), d = fromKey(k), m = mark(k);
+  const wd = WD_FULL[wdIdx(d)].toLowerCase();
+  const kick = k === tk ? `<b>Сегодня</b> · ${wd}` : k === keyOf(addDays(fromKey(tk), -1)) ? `<b>Вчера</b> · ${wd}` : wd[0].toUpperCase() + wd.slice(1);
+  return `<header>
+    <div class="top">
+      <div class="tt"><div class="kicker">${kick}</div><h1>${d.getDate()} ${MONTHS[d.getMonth()]}</h1></div>
+      <button class="nbtn" data-act="prev" aria-label="Предыдущий день">${ic("chevL", 20)}</button>
+      <button class="nbtn" data-act="next" aria-label="Следующий день">${ic("chevR", 20)}</button>
     </div>
-    <div class="chiprow">
-      <select class="chip" id="planSel" aria-label="Тип дня">${Object.entries(state.templates).map(([id, t]) =>
-        `<option value="${id}" ${id === plan ? "selected" : ""}>${t.icon} ${esc(t.name)}</option>`).join("")}</select>
-      ${isToday ? `<span class="muted small">сегодня</span>` : `<button class="linkbtn" data-act="today">← к сегодня</button>`}
-    </div>`;
+    <div class="chips">
+      <label class="pill">${ic(TYPE_ICON[plan] || "dot", 18, "acc")}<span>${esc(state.templates[plan].name)}</span>${ic("chevD", 16, "mut")}
+        <select id="planSel" aria-label="Тип дня">${Object.entries(state.templates).map(([id, t]) =>
+          `<option value="${id}" ${id === plan ? "selected" : ""}>${esc(t.name)}</option>`).join("")}</select></label>
+      <button class="pill sw" role="switch" aria-checked="${!!m.light}" data-act="light">${ic("feather", 18)}<span>Лёгкий день</span><span class="knob" aria-hidden="true"></span></button>
+      ${k !== tk ? `<button class="linkbtn" data-act="today">К сегодня</button>` : ""}
+    </div>
+  </header>
+  ${m.light ? `<div class="hint">${ic("feather", 18)}<span><b>Лёгкий день.</b> Минимум засчитывается полностью, пропуск не переносится.</span></div>` : ""}`;
 }
 
-function habitCard(id, h, val, disabled) {
-  return `<div class="card habit">
-    <div class="head"><span class="name">${h.name}</span></div>
-    <div class="opts">${Object.entries(h.opts).map(([v, label]) =>
-      `<button class="opt" data-h="${id}" data-v="${v}" aria-pressed="${val === v}" ${disabled ? "disabled" : ""}>${label}</button>`).join("")}
-    </div></div>`;
-}
-
-// следующий неотмеченный пункт: после только что отмеченного или по текущему времени
+// следующий неотмеченный пункт: после указанного или по текущему времени
 function nextBlock(k, afterId) {
   const bl = blocksOf(k);
   if (afterId) {
@@ -377,6 +581,57 @@ function nextBlock(k, afterId) {
   const n = nowMin();
   return bl.find(b => !blockDone(k, b.id) && span(b)[1] > n) || null;
 }
+function groupsOf(blocks) {
+  return [["Утро", 0, 600], ["День", 600, 1140], ["Вечер", 1140, 99999]]
+    .map(([name, a, b]) => ({ name, blocks: blocks.filter(x => { const s = shiftMin(x.s); return s >= a && s < b; }) }))
+    .filter(g => g.blocks.length);
+}
+const segbar = (done, total) => total ? `<div class="segbar" aria-hidden="true" style="grid-template-columns:repeat(${total},minmax(0,1fr))">${
+  Array.from({ length: total }, (_, i) => `<span class="${i < done ? "on" : ""}"></span>`).join("")}</div>` : "";
+
+function nowCard(k, light) {
+  const nb = nextBlock(k), n = nowMin();
+  if (!nb) {
+    const bl = blocksOf(k), done = bl.filter(b => blockDone(k, b.id)).length;
+    return done === bl.length
+      ? `<div class="alldone"><span class="moon">${ic("moon", 24)}</span><div><b>Всё отмечено</b><span>Спокойной ночи</span></div></div>`
+      : `<div class="alldone"><span class="moon">${ic("moon", 24)}</span><div><b>День закончился</b><span>Отмечено ${done} из ${bl.length}. Пропущенное можно отметить ниже.</span></div></div>`;
+  }
+  const [s, e] = span(nb), cur = n >= s && n < e;
+  const after = nextBlock(k, nb.id);
+  const hint = light && nb.l ? `<p class="nn light">${ic("feather", 16)}${esc(nb.l)}</p>` : nb.n ? `<p class="nn">${esc(nb.n)}</p>` : "";
+  const pct = cur ? Math.round((n - s) / (e - s) * 100) : 0;
+  return `<section class="now" aria-label="${cur ? "Сейчас" : "Дальше"}">
+    <div class="nh"><span class="badge">${cur ? "СЕЙЧАС" : "ДАЛЬШЕ"}</span>
+      <span class="eta">${ic("clock", 15)}${cur ? `ещё ${fmtDur(e - n)}` : n < s ? `через ${fmtDur(s - n)}` : "пора отметить"}</span></div>
+    <div><div class="nt">${ic(blockIcon(nb.t), 26)}<h2>${esc(cleanTitle(nb.t))}</h2></div>${hint}</div>
+    <div class="np"><span>${nb.s}–${nb.e}</span><span class="track"><i style="width:${pct}%"></i></span></div>
+    <button class="bigbtn" data-act="blk" data-id="${nb.id}">${ic("check", 22, "", 2.5)}Готово</button>
+    ${after ? `<div class="then">Потом: <span>${after.s} · ${esc(cleanTitle(after.t))}</span></div>` : ""}
+  </section>`;
+}
+
+function blockRow(k, b, light, isToday, isFuture, plan) {
+  const st = (mark(k).blocks || {})[b.id] || {}, n = nowMin(), [s, e] = span(b), open = openBlock === b.id;
+  const cur = isToday && n >= s && n < e, past = isToday && n >= e;
+  const hint = light && b.l ? `<span class="rhint light">${ic("feather", 15)}<span>${esc(b.l)}</span></span>` : b.n ? `<span class="rhint">${esc(b.n)}</span>` : "";
+  const note = !open && st.n ? `<span class="npill">${ic("pencil", 14)}<span>${esc(st.n)}</span></span>`
+    : !open && !isFuture ? `<span class="addnote">${ic("plus", 15)}Заметка</span>` : "";
+  const prog = b.h === "tr" && state.programs[plan];
+  return `<div class="row ${cur ? "now" : ""} ${past ? "past" : ""} ${st.d ? "done" : ""}">
+    <button class="chk ${popId === b.id ? "pop" : ""}" data-act="blk" data-id="${b.id}" aria-pressed="${!!st.d}" aria-label="Отметить: ${esc(cleanTitle(b.t))}" ${isFuture ? "disabled" : ""}>
+      <span class="c">${st.d ? ic("check", 16, "", 3) : ""}</span></button>
+    <div class="rb">
+      <button class="rbody" data-act="open" data-id="${b.id}" aria-label="${esc(cleanTitle(b.t))}: заметка">
+        <span class="rt">${b.s}–${b.e}${cur ? `<span class="badge sm">СЕЙЧАС</span>` : ""}</span>
+        <span class="rtitle">${ic(blockIcon(b.t), 18)}<span>${esc(cleanTitle(b.t))}</span></span>
+        ${hint}${note}
+      </button>
+      ${prog ? `<button class="plink" data-act="goTrain">Программа тренировки${ic("chevR", 16)}</button>` : ""}
+      ${open ? `<textarea class="noteed" data-note="b:${b.id}" rows="2" placeholder="Например: встал в 9:20, выспался">${esc(st.n)}</textarea><span class="saved">Сохраняется само</span>` : ""}
+    </div>
+  </div>`;
+}
 
 function renderToday() {
   const k = viewDay, tk = todayKey();
@@ -384,59 +639,51 @@ function renderToday() {
   const plan = planOf(k), tpl = state.templates[plan], m = mark(k), light = !!m.light, bm = m.blocks || {};
   const yk = keyOf(addDays(fromKey(tk), -1)), ym = mark(yk);
   const yNeed = Object.keys(state.marks).length > 0 && (!ym.py || !ym.off || (planOf(yk) !== "rest" && !ym.tr));
-  const n = nowMin();
   const doneCnt = tpl.blocks.filter(b => bm[b.id]?.d).length;
 
   let html = dayHeader(k);
-  if (isToday && yNeed) html += `<div class="banner"><span>Вчерашний день ещё не отмечен</span><button data-act="yesterday">Отметить</button></div>`;
+  if (isToday && yNeed) html += `<div class="banner">${ic("calCheck", 20)}<span>Вчерашний день ещё не отмечен</span><button class="softbtn" data-act="yesterday">Отметить</button></div>`;
+  if (isToday) html += nowCard(k, light);
 
-  if (isToday) {
-    const nb = nextBlock(k);
-    if (nb) {
-      const [s, e] = span(nb), cur = n >= s && n < e;
-      html += `<div class="card next"><span class="lbl">${cur ? "Сейчас" : "Дальше"}</span>
-        <span class="t">${esc(nb.t)}</span><span class="tm">${nb.s}–${nb.e}</span>
-        <button class="go" data-act="blk" data-id="${nb.id}">✓ Готово</button></div>`;
-    } else if (doneCnt) {
-      html += `<div class="card next"><span class="lbl">На сегодня</span><span class="t">Всё отмечено. Спокойной ночи 🌙</span></div>`;
+  html += `<div class="sec"><h2>План дня</h2><span class="cnt">${doneCnt} из ${tpl.blocks.length}</span></div>${segbar(doneCnt, tpl.blocks.length)}`;
+  groupsOf(tpl.blocks).forEach((g, gi) => {
+    const gd = g.blocks.filter(b => bm[b.id]?.d).length, all = gd === g.blocks.length;
+    const key = `${k}|${g.name}`, open = groupOpen[key] ?? !all;
+    const rng = `${g.blocks[0].s}–${g.blocks[g.blocks.length - 1].e}`;
+    if (!open) {
+      html += `<button class="grpc" data-act="grp" data-g="${g.name}" aria-expanded="false" style="${gi ? "" : "margin-top:0"}">
+        <span class="dotc ${all ? "on" : ""}">${all ? ic("check", 15, "", 3) : ""}</span>
+        <span class="gt"><b>${g.name}<span> · ${all ? "всё сделано" : rng}</span></b><span>${g.blocks.map(b => esc(cleanTitle(b.t))).join(" · ")}</span></span>
+        <span class="cnt2">${gd} из ${g.blocks.length}</span>${ic("chevD", 18)}</button>`;
+    } else {
+      html += `<section class="card grp" style="${gi ? "" : "margin-top:0"}">
+        <button class="grph" data-act="grp" data-g="${g.name}" aria-expanded="true"><b>${g.name}</b><span class="rng">${rng}</span><span style="flex:1"></span>
+          <span class="cnt2">${gd} из ${g.blocks.length}</span>${ic("chevU", 18)}</button>
+        ${g.blocks.map(b => blockRow(k, b, light, isToday, isFuture, plan)).join("")}</section>`;
     }
-  }
+  });
 
-  html += `<h2><span>${light ? "План · лёгкий день" : "План"}</span><span class="cnt">${doneCnt} из ${tpl.blocks.length}</span></h2>
-    <div class="card list">`;
-  tpl.blocks.forEach(b => {
-    const [s, e] = span(b), st = bm[b.id] || {}, open = openBlock === b.id;
-    const cls = [isToday && n >= s && n < e ? "now" : "", isToday && n >= e ? "past" : "", st.d ? "done" : ""].join(" ");
-    const hint = light && b.l ? `⤵ ${b.l}` : b.n;
-    const prog = b.h === "tr" && state.programs[plan];
-    html += `<div class="row ${cls}">
-      <button class="chk" data-act="blk" data-id="${b.id}" aria-pressed="${!!st.d}" aria-label="Выполнено" ${isFuture ? "disabled" : ""}>✓</button>
-      <div class="body" data-act="open" data-id="${b.id}">
-        <div class="time">${b.s}–${b.e}</div>
-        <div class="t">${esc(b.t)}</div>
-        ${hint ? `<div class="note">${esc(hint)}</div>` : ""}
-        ${st.n && !open ? `<div class="unote">📝 ${esc(st.n)}</div>` : ""}
-        ${!open && !st.n ? `<div class="note" style="opacity:.7">＋ заметка</div>` : ""}
-        ${prog ? `<button class="linkbtn" data-act="goTrain">Программа тренировки →</button>` : ""}
-      </div>
-      ${open ? `<textarea class="noteed" data-note="b:${b.id}" placeholder="Например: «встал в 9:20, выспался»">${esc(st.n)}</textarea>` : ""}
-    </div>`;
+  html += `<div class="sec"><h2>Привычки</h2></div><div class="card habs">`;
+  const habs = ["py", ...(HABITS.tr[plan] ? ["tr"] : []), "off"];
+  habs.forEach(h => {
+    const def = habitDef(h, plan), v = m[h];
+    html += `<div class="hab"><div class="habh">${ic(def.icon, 20)}<span class="hn">${def.name}</span>
+        <span class="hs ${v && v !== "skip" ? "on" : ""}">${v ? optLabel(def.opts[v]) : "не отмечено"}</span></div>
+      <div class="opts">${Object.entries(def.opts).map(([val, o]) =>
+        `<button class="opt" data-h="${h}" data-v="${val}" aria-pressed="${v === val}" ${isFuture ? "disabled" : ""}><b>${o[0]}</b>${o[1] ? `<small>${o[1]}</small>` : ""}</button>`).join("")}</div></div>`;
   });
   html += `</div>`;
+  if (isFuture) html += `<p class="note-s">Отмечать можно сегодня и прошедшие дни.</p>`;
 
-  html += `<h2><span>Привычки</span></h2><div class="stack">`;
-  if (isFuture) html += `<p class="muted small" style="margin:0 4px">Отмечать можно сегодня и прошедшие дни.</p>`;
-  html += habitCard("py", HABITS.py, m.py, isFuture);
-  if (HABITS.tr[plan]) html += habitCard("tr", HABITS.tr[plan], m.tr, isFuture);
-  html += habitCard("off", HABITS.off, m.off, isFuture);
-  html += `<div class="card switch"><div class="txt"><div style="font-weight:600">Лёгкий день</div>
-      <div class="muted small">Устал или всё навалилось — минимум засчитывается полностью, пропуск не переносится.</div></div>
-      <button class="toggle" role="switch" aria-checked="${light}" aria-label="Лёгкий день" data-act="light"></button></div>`;
-  html += `</div>`;
-
-  html += `<h2><span>Итог дня</span></h2>${reportCard(k)}`;
-  html += `<p class="muted small" style="margin:10px 4px">Уведомления приходят из Календаря iPhone. Нажми на пункт плана, чтобы написать заметку.</p>`;
+  const tiles = [[`${doneCnt} из ${tpl.blocks.length}`, "План", false],
+    ...habs.map(h => { const def = habitDef(h, plan), v = m[h]; return [v ? def.opts[v][0] : "нет", def.short || def.name, !v]; })];
+  html += `<button class="card sumcard" data-act="sheet"><span class="sh"><b>Итог дня</b><span>Открыть${ic("chevR", 18)}</span></span>
+    <span class="tiles" style="grid-template-columns:repeat(${tiles.length},minmax(0,1fr))">${tiles.map(([v, l, no]) =>
+      `<span class="tile"><b class="${no ? "no" : ""}">${esc(v)}</b><span>${esc(l)}</span></span>`).join("")}</span></button>`;
+  html += `<p class="note-s">Уведомления приходят из Календаря iPhone. Нажми на пункт, чтобы написать заметку.</p>`;
+  if (sheetOpen) html += sheetHtml(k);
   app.innerHTML = html;
+  popId = null;
   const ta = app.querySelector(".noteed");
   if (ta && focusNote) ta.focus({ preventScroll: true });
   focusNote = false;
@@ -451,35 +698,40 @@ function dayData(k) {
     plan, m, blocks, exItems,
     bDone: blocks.filter(b => bm[b.id]?.d).length,
     exDone: exItems.filter(x => em[x.id]?.d).length,
-    bNotes: blocks.filter(b => bm[b.id]?.n).map(b => [b.t, bm[b.id].n]),
+    bNotes: blocks.filter(b => bm[b.id]?.n).map(b => [cleanTitle(b.t), bm[b.id].n]),
     exNotes: exItems.filter(x => em[x.id]?.n).map(x => [x.n, em[x.id].n])
   };
 }
-const habitLabel = (h, v, plan) => {
-  if (!v) return "—";
-  const def = h === "tr" ? HABITS.tr[plan] : HABITS[h];
-  return def ? def.opts[v] : "—";
-};
+const habitLabel = (h, v, plan) => { const def = habitDef(h, plan); return v && def ? optLabel(def.opts[v]) : "—"; };
 
-function reportCard(k) {
-  const r = dayData(k);
-  let html = `<div class="card rep">
-    <div class="line"><span>📋 Пункты плана</span><b>${r.bDone} из ${r.blocks.length}</b></div>`;
-  if (r.exItems.length) html += `<div class="line"><span>${state.programs[r.plan].icon} Упражнения</span><b>${r.exDone} из ${r.exItems.length}</b></div>`;
-  html += `<div class="line"><span>🐍 Python</span><b>${habitLabel("py", r.m.py)}</b></div>`;
-  if (HABITS.tr[r.plan]) html += `<div class="line"><span>${HABITS.tr[r.plan].name}</span><b>${habitLabel("tr", r.m.tr, r.plan)}</b></div>`;
-  html += `<div class="line"><span>🖥️ Отход</span><b>${habitLabel("off", r.m.off)}</b></div>`;
+function sheetHtml(k) {
+  const r = dayData(k), dotc = { done: "var(--acc)", min: "var(--min)", skip: "var(--ring)" };
+  const rows = [["listChecks", "Пункты плана", `<b>${r.bDone} из ${r.blocks.length}</b>`]];
+  if (r.exItems.length) rows.push([TYPE_ICON[r.plan], "Упражнения", `<b>${r.exDone} из ${r.exItems.length}</b>`]);
+  ["py", ...(HABITS.tr[r.plan] ? ["tr"] : []), "off"].forEach(h => {
+    const def = habitDef(h, r.plan), v = r.m[h];
+    rows.push([def.icon, def.short || def.name, v ? `<b><i style="background:${dotc[v]}"></i>${esc(optLabel(def.opts[v]))}</b>` : `<b class="no">не отмечено</b>`]);
+  });
   const notes = [...r.bNotes, ...r.exNotes];
-  if (notes.length) html += `<ul>${notes.map(([t, n]) => `<li><span class="muted">${esc(t)}:</span> ${esc(n)}</li>`).join("")}</ul>`;
-  html += `<textarea data-note="d:" placeholder="Заметка дня: как прошёл, что получилось, что мешало">${esc(r.m.note)}</textarea>
-    <div class="btns"><button class="btn" data-act="share">Поделиться отчётом</button></div></div>`;
-  return html;
+  return `<div class="shade" data-act="sheetClose"></div>
+  <section class="sheet" role="dialog" aria-label="Итог дня">
+    <span class="grab" aria-hidden="true"></span>
+    <div class="shh"><div><h2>Итог дня</h2><div class="sub">${dayTitle(k)} · ${esc(state.templates[r.plan].name)}${r.m.light ? " · лёгкий день" : ""}</div></div>
+      <button class="xbtn" data-act="sheetClose" aria-label="Закрыть">${ic("x", 20)}</button></div>
+    <div class="scroll">
+      <div class="slist">${rows.map(([i, l, v]) => `<div>${ic(i, 18)}<span>${l}</span>${v}</div>`).join("")}</div>
+      ${notes.length ? `<h3>Заметки за день</h3><ul>${notes.map(([t, n]) => `<li><span>${esc(t)}</span>${esc(n)}</li>`).join("")}</ul>` : ""}
+      <label for="daynote">Заметка дня</label>
+      <textarea id="daynote" class="ta" data-note="d:" rows="3" placeholder="Как прошёл день, что получилось, что мешало">${esc(r.m.note)}</textarea>
+    </div>
+    <button class="bigbtn" data-act="share">${ic("share", 20)}Поделиться отчётом</button>
+  </section>`;
 }
 
 function reportText(k) {
   const r = dayData(k), bm = r.m.blocks || {}, em = r.m.ex || {};
   const L = [`Режим · ${dayTitle(k)} (${state.templates[r.plan].name})`, "", `План: ${r.bDone} из ${r.blocks.length}`];
-  r.blocks.forEach(b => L.push(`${bm[b.id]?.d ? "✅" : "▫️"} ${b.s} ${b.t}${bm[b.id]?.n ? " — " + bm[b.id].n : ""}`));
+  r.blocks.forEach(b => L.push(`${bm[b.id]?.d ? "✅" : "▫️"} ${b.s} ${cleanTitle(b.t)}${bm[b.id]?.n ? " — " + bm[b.id].n : ""}`));
   if (r.exItems.length) {
     L.push("", `Тренировка: ${r.exDone} из ${r.exItems.length}`);
     r.exItems.forEach(x => L.push(`${em[x.id]?.d ? "✅" : "▫️"} ${x.n} (${x.t})${em[x.id]?.n ? " — " + em[x.id].n : ""}`));
@@ -492,59 +744,65 @@ function reportText(k) {
   return L.join("\n");
 }
 
+const curProgType = () => trType || (state.programs[planOf(viewDay)] ? planOf(viewDay) : "gym");
 function renderTrain() {
   const k = viewDay, plan = planOf(k), isFuture = k > todayKey();
-  const type = trType || (state.programs[plan] ? plan : "gym");
+  const type = curProgType();
   const prog = state.programs[type], m = mark(k), em = m.ex || {};
   const done = prog.items.filter(x => em[x.id]?.d).length;
 
   let html = dayHeader(k);
-  html += `<div class="seg" style="margin-top:14px">${Object.entries(state.programs).map(([id, p]) =>
-    `<button data-prog="${id}" aria-pressed="${id === type}">${p.icon} ${esc(p.name)}</button>`).join("")}</div>`;
-  if (!state.programs[plan]) html += `<div class="hint">Сегодня по плану ${esc(state.templates[plan].name.toLowerCase())} — тренировка будет бонусом.</div>`;
-  else if (type !== plan) html += `<div class="hint">Сегодня по плану «${esc(state.programs[plan].name)}». Можно сделать и эту программу.</div>`;
-  if (m.light && !trEdit) html += `<div class="hint">Лёгкий день: один круг или половина подходов — это засчитывается как минимум.</div>`;
+  html += `<div class="seg">${Object.entries(state.programs).map(([id, p]) =>
+    `<button data-prog="${id}" aria-pressed="${id === type}">${ic(TYPE_ICON[id] || "dot", 18)}${esc(p.name)}</button>`).join("")}</div>`;
+  if (!state.programs[plan]) html += `<div class="hint">${ic("leaf", 18)}<span>Сегодня по плану ${esc(state.templates[plan].name.toLowerCase())}, тренировка будет бонусом.</span></div>`;
+  else if (type !== plan) html += `<div class="hint">${ic("info", 18)}<span>Сегодня по плану «${esc(state.programs[plan].name)}». Можно сделать и эту программу.</span></div>`;
+  if (m.light && !trEdit && prog.items.length) html += `<div class="hint">${ic("feather", 18)}<span>Лёгкий день: один круг или половина подходов. Это засчитывается как минимум.</span></div>`;
 
   if (trEdit) {
-    html += `<h2><span>Программа «${esc(prog.name)}»</span></h2><div class="card"><div id="exlist">${prog.items.map((x, i) => `<div class="ed ex" data-i="${i}">
-        <input type="text" value="${esc(x.n)}" data-f="n" placeholder="Упражнение" aria-label="Упражнение">
-        <button class="del" data-act="exdel" data-i="${i}" aria-label="Удалить">×</button>
-        <input type="text" value="${esc(x.t)}" data-f="t" placeholder="Подходы × повторы, например 3 × 12" aria-label="Подходы и повторы"></div>`).join("")}</div>
-      <div class="btns"><button class="btn" data-act="exadd">+ Упражнение</button>
-        <button class="btn primary" data-act="exsave">Сохранить</button>
-        <button class="btn" data-act="excancel">Отмена</button></div>
-      <p class="muted small" style="margin:10px 0 0">Порядок — как в списке. Отметки прошлых дней сохранятся.</p></div>`;
+    html += `<div class="sec"><h2>Изменить «${esc(prog.name)}»</h2></div>
+      <div class="card" style="margin-top:10px" id="exlist">${prog.items.map((x, i) => `<div class="edrow" data-i="${i}">
+        <span class="num">${i + 1}</span>
+        <input class="fld b" type="text" value="${esc(x.n)}" data-f="n" placeholder="Упражнение" aria-label="Упражнение">
+        <button class="xs" data-act="exdel" data-i="${i}" aria-label="Удалить: ${esc(x.n)}">${ic("x", 20)}</button>
+        <input class="fld fld2" type="text" value="${esc(x.t)}" data-f="t" placeholder="Подходы × повторы, например 3 × 12" aria-label="Подходы и повторы">
+      </div>`).join("") || `<p class="note-s" style="margin:14px">Список пуст. Добавь первое упражнение.</p>`}</div>
+      <button class="dashed" data-act="exadd">${ic("plus", 18)}Упражнение</button>
+      <p class="note-s">Порядок как в списке. Отметки прошлых дней сохранятся.</p>
+      <div class="pad-save"></div>
+      <div class="savebar"><button class="cancel" data-act="excancel">Отмена</button><button class="ok" data-act="exsave">Сохранить</button></div>`;
+  } else if (!prog.items.length) {
+    html += `<div class="sec"><h2>Программа «${esc(prog.name)}»</h2></div>
+      <div class="card empty" style="margin-top:10px"><div class="eic">${ic(TYPE_ICON[type] || "dot", 24)}</div><b>Программы пока нет</b>
+        <p>Добавь упражнения сам или пришли программу, её внесут сюда.</p>
+        <button class="bigbtn" data-act="exstart">${ic("plus", 20)}Добавить упражнения</button></div>`;
   } else {
-    html += `<h2><span>Программа «${esc(prog.name)}»</span><span class="cnt">${prog.items.length ? `${done} из ${prog.items.length}` : ""}</span></h2>`;
-    if (!prog.items.length) {
-      html += `<div class="card"><p style="margin:0">Программы пока нет.</p>
-        <p class="muted small" style="margin:6px 0 0">Добавь упражнения сам или пришли программу — её внесут сюда.</p></div>`;
-    } else {
-      html += `<div class="card list">${prog.items.map(x => {
+    html += `<div class="sec"><h2>Программа «${esc(prog.name)}»</h2><span class="cnt">${done} из ${prog.items.length}</span></div>${segbar(done, prog.items.length)}
+      <div class="card exs">${prog.items.map(x => {
         const st = em[x.id] || {};
-        return `<div class="row ${st.d ? "done" : ""}">
-          <button class="chk" data-act="ex" data-id="${x.id}" aria-pressed="${!!st.d}" aria-label="Выполнено" ${isFuture ? "disabled" : ""}>✓</button>
-          <div><div class="t">${esc(x.n)}</div>${x.t ? `<div class="target">${esc(x.t)}</div>` : ""}</div>
-          <input class="exnote" type="text" data-note="e:${x.id}" value="${esc(st.n)}" placeholder="Вес, повторы, как прошло" ${isFuture ? "disabled" : ""}>
+        return `<div class="ex ${st.d ? "done" : ""}">
+          <button class="chk ${popId === x.id ? "pop" : ""}" data-act="ex" data-id="${x.id}" aria-pressed="${!!st.d}" aria-label="Отметить: ${esc(x.n)}" ${isFuture ? "disabled" : ""}>
+            <span class="c">${st.d ? ic("check", 16, "", 3) : ""}</span></button>
+          <div><div class="eh"><b>${esc(x.n)}</b>${x.t ? `<span>${esc(x.t)}</span>` : ""}</div>
+            <input type="text" data-note="e:${x.id}" value="${esc(st.n)}" placeholder="Вес, повторы, как прошло" aria-label="Заметка: ${esc(x.n)}" ${isFuture ? "disabled" : ""}></div>
         </div>`;
-      }).join("")}</div>`;
-    }
-    html += `<div class="btns"><button class="btn" data-act="exedit">✏️ Изменить программу</button></div>`;
+      }).join("")}</div>
+      <button class="secbtn" data-act="exedit">${ic("pencil", 18)}Изменить программу</button>`;
   }
   app.innerHTML = html;
+  popId = null;
 }
 
 function countPeriod(from, to) {
   const tk = todayKey();
-  const r = { days: 0, py: 0, pyMin: 0, gym: 0, gymPlan: 0, press: 0, pressPlan: 0, off: 0, offMin: 0, bDays: 0, bDone: 0, bTotal: 0, ex: 0 };
+  const r = { days: 0, py: 0, pyMin: 0, gym: 0, gymMin: 0, gymPlan: 0, press: 0, pressMin: 0, pressPlan: 0, off: 0, offMin: 0, bDays: 0, bDone: 0, bTotal: 0, ex: 0 };
   for (let d = new Date(from); keyOf(d) <= keyOf(to) && keyOf(d) <= tk; d = addDays(d, 1)) {
     const k = keyOf(d), m = mark(k), p = planOf(k);
     r.days++;
     if (m.py === "done" || m.py === "min") r.py++;
     if (m.py === "min") r.pyMin++;
     const tr = m.tr === "done" || m.tr === "min";
-    if (p === "gym") { r.gymPlan++; if (tr) r.gym++; }
-    if (p === "press") { r.pressPlan++; if (tr) r.press++; }
+    if (p === "gym") { r.gymPlan++; if (tr) r.gym++; if (m.tr === "min") r.gymMin++; }
+    if (p === "press") { r.pressPlan++; if (tr) r.press++; if (m.tr === "min") r.pressMin++; }
     if (m.off === "done") r.off++;
     if (m.off === "min") r.offMin++;
     const dd = dayData(k);
@@ -553,94 +811,92 @@ function countPeriod(from, to) {
   }
   return r;
 }
-function statRow(label, done, min, total, extra) {
+function statRow(icn, label, done, min, total, extra) {
   const pd = total ? (done - min) / total * 100 : 0, pm = total ? min / total * 100 : 0;
-  return `<div class="stat"><span>${label}</span><span class="val">${total ? `${done} из ${total}` : "—"}</span>
-    <div class="bar"><i class="d" style="width:${pd}%"></i><i class="m" style="width:${pm}%"></i></div>
-    ${extra ? `<span class="muted small" style="grid-column:1/-1">${extra}</span>` : ""}</div>`;
+  return `<div class="st"><div class="sth">${ic(icn, 18)}<span>${label}</span><b>${total ? `${done}<small> из ${total}</small>` : `<small>—</small>`}</b></div>
+    <div class="bar" aria-hidden="true"><i class="d" style="width:${pd}%"></i><i class="m" style="width:${pm}%"></i></div>
+    ${extra ? `<div class="sx">${extra}</div>` : ""}</div>`;
 }
 function statsBlock(r) {
-  return statRow("🐍 Python, дней", r.py, r.pyMin, r.days, r.pyMin ? `из них минимум: ${r.pyMin}` : "") +
-    statRow("🏋️ Зал", r.gym, 0, r.gymPlan) +
-    statRow("💪 Пресс", r.press, 0, r.pressPlan, r.ex ? `упражнений отмечено за период: ${r.ex}` : "") +
-    statRow("🖥️ Отход от компьютера", r.off + r.offMin, r.offMin, r.days, r.offMin ? `вовремя: ${r.off}, до 23:45: ${r.offMin}` : "") +
-    statRow("📋 Пункты плана", r.bDone, 0, r.bTotal, r.bDays ? `считаются дни, где отмечен хотя бы один пункт: ${r.bDays}` : "");
+  const pressX = [r.pressMin ? `из них 10 мин: ${r.pressMin}` : "", r.ex ? `упражнений отмечено: ${r.ex}` : ""].filter(Boolean).join(", ");
+  return statRow("code", "Python, дней", r.py, r.pyMin, r.days, r.pyMin ? `из них минимум: ${r.pyMin}` : "") +
+    statRow("dumbbell", "Зал", r.gym, r.gymMin, r.gymPlan, r.gymMin ? `из них лёгкая: ${r.gymMin}` : "") +
+    statRow("activity", "Пресс", r.press, r.pressMin, r.pressPlan, pressX) +
+    statRow("monitorOff", "Отход от компьютера", r.off + r.offMin, r.offMin, r.days, r.offMin ? `вовремя: ${r.off}, до 23:45: ${r.offMin}` : "") +
+    statRow("listChecks", "Пункты плана", r.bDone, 0, r.bTotal, r.bDays ? `дней с отметками: ${r.bDays}` : "");
 }
 
 function renderStats() {
   const we = addDays(weekStart, 6), tk = todayKey();
   const w = countPeriod(weekStart, we);
-  const fmt = d => `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+  const fmtW = weekStart.getMonth() === we.getMonth() ? `${weekStart.getDate()}–${we.getDate()} ${MONTHS[we.getMonth()]}`
+    : `${weekStart.getDate()} ${MONTHS[weekStart.getMonth()]} – ${we.getDate()} ${MONTHS[we.getMonth()]}`;
   const mEnd = new Date(monthCur.getFullYear(), monthCur.getMonth() + 1, 0);
   const mo = countPeriod(monthCur, mEnd);
 
-  let html = `<h1>Итоги</h1><p class="muted small" style="margin:2px 0 0">Минимум считается. Пустые дни — просто не отмечены. Серий и рейтингов нет.</p>`;
-  html += `<h2><span>Неделя</span></h2><div class="card"><div class="periodnav">
-      <button class="iconbtn" data-act="wprev" aria-label="Предыдущая неделя">‹</button>
-      <div class="label">${fmt(weekStart)} – ${fmt(we)}</div>
-      <button class="iconbtn" data-act="wnext" aria-label="Следующая неделя">›</button></div>
-      ${statsBlock(w)}</div>`;
-
-  html += `<h2><span>Месяц</span></h2><div class="card"><div class="periodnav">
-      <button class="iconbtn" data-act="mprev" aria-label="Предыдущий месяц">‹</button>
-      <div class="label">${MONTHS_NOM[monthCur.getMonth()]} ${monthCur.getFullYear()}</div>
-      <button class="iconbtn" data-act="mnext" aria-label="Следующий месяц">›</button></div>
-      ${statsBlock(mo)}
-      <div class="grid7" style="margin-top:16px">${WD_SHORT.map(x => `<div class="wd">${x}</div>`).join("")}`;
-  for (let i = 0; i < wdIdx(monthCur); i++) html += `<div></div>`;
+  let html = `<h1>Итоги</h1><p class="lead">Минимум считается. Пустые дни просто не отмечены. Серий и рейтингов нет.</p>`;
+  html += `<div class="sec" style="margin-top:28px"><h2>Неделя</h2></div><div class="card pcard"><div class="pnav">
+      <button class="nbtn" data-act="wprev" aria-label="Предыдущая неделя">${ic("chevL", 20)}</button><span>${fmtW}</span>
+      <button class="nbtn" data-act="wnext" aria-label="Следующая неделя">${ic("chevR", 20)}</button></div>${statsBlock(w)}</div>`;
+  html += `<div class="sec" style="margin-top:28px"><h2>Месяц</h2></div><div class="card pcard m"><div class="pnav">
+      <button class="nbtn" data-act="mprev" aria-label="Предыдущий месяц">${ic("chevL", 20)}</button><span>${MONTHS_NOM[monthCur.getMonth()]} ${monthCur.getFullYear()}</span>
+      <button class="nbtn" data-act="mnext" aria-label="Следующий месяц">${ic("chevR", 20)}</button></div>${statsBlock(mo)}
+      <div class="cal">${WD_SHORT.map(x => `<span class="wd">${x}</span>`).join("")}`;
+  for (let i = 0; i < wdIdx(monthCur); i++) html += `<span></span>`;
   for (let d = new Date(monthCur); d <= mEnd; d = addDays(d, 1)) {
     const k = keyOf(d), m = mark(k), p = planOf(k);
     const dot = (v, na) => `<i class="dot ${na ? "na" : v || ""}"></i>`;
     html += `<button class="cell ${k === tk ? "today" : ""} ${k > tk ? "future" : ""}" data-day="${k}" aria-label="${d.getDate()} ${MONTHS[d.getMonth()]}">
-      <span class="n">${d.getDate()}</span><span class="dots">${dot(m.py)}${dot(m.tr, p === "rest")}${dot(m.off)}</span></button>`;
+      <b>${d.getDate()}</b><span class="dots">${dot(m.py)}${dot(m.tr, p === "rest" && !m.tr)}${dot(m.off)}</span></button>`;
   }
-  html += `</div><div class="legend"><span>точки: Python · тренировка · отход</span>
-      <span><i class="dot done"></i>да</span><span><i class="dot min"></i>минимум</span><span><i class="dot skip"></i>пропуск</span></div>
-      <p class="muted small" style="margin:8px 0 0">Нажми на день, чтобы открыть его отчёт и отметки.</p></div>`;
+  html += `</div><div class="legend"><span>Точки: Python · тренировка · отход</span>
+      <span><i class="dot done"></i>да</span><span><i class="dot min"></i>минимум</span><span><i class="dot skip"></i>пропуск</span><span><i class="dot"></i>не отмечено</span></div>
+      <p class="note-s" style="margin:10px 0 0">Нажми на день, чтобы открыть его отметки.</p></div>`;
   app.innerHTML = html;
 }
 
-function renderSettings(warn) {
+function renderSettings() {
   const t = state.templates[edTpl];
   let html = `<h1>Настройки</h1>`;
-  html += `<h2><span>Какой день недели — какой шаблон</span></h2><div class="card" style="padding:4px 14px">`;
+  html += `<div class="sec" style="margin-top:24px"><h2>Шаблон на каждый день недели</h2></div><div class="card list">`;
   WD_FULL.forEach((n, i) => {
-    html += `<div class="wkrow"><span>${n}</span><select data-wd="${i}">${Object.entries(state.templates).map(([id, x]) =>
-      `<option value="${id}" ${state.week[i] === id ? "selected" : ""}>${x.icon} ${esc(x.name)}</option>`).join("")}</select></div>`;
+    const id = state.week[i];
+    html += `<div class="wrow"><span>${n}</span><label class="wsel">${ic(TYPE_ICON[id] || "dot", 18, "acc")}<span>${esc(state.templates[id].name)}</span>${ic("chevD", 16, "mut")}
+      <select data-wd="${i}" aria-label="${n}">${Object.entries(state.templates).map(([tid, x]) =>
+        `<option value="${tid}" ${id === tid ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></label></div>`;
   });
-  html += `</div><p class="muted small" style="margin:8px 4px 0">Разово поменять тип дня можно на экране «Сегодня» — в выпадающем списке под датой.</p>`;
+  html += `</div><p class="note-s">Разово поменять тип дня можно на экране «Сегодня», под датой.</p>`;
 
-  html += `<h2><span>Шаблоны дня</span></h2><div class="card">
+  html += `<div class="sec"><h2>Шаблоны дня</h2></div><div class="card tcard">
     <div class="seg">${Object.entries(state.templates).map(([id, x]) =>
-      `<button data-tpl="${id}" aria-pressed="${id === edTpl}">${x.icon} ${esc(x.name)}</button>`).join("")}</div>
-    <div id="edlist" style="margin-top:12px">${t.blocks.map((b, i) => `<div class="ed" data-i="${i}">
-      <input type="time" value="${b.s}" data-f="s" aria-label="Начало">
-      <input type="time" value="${b.e}" data-f="e" aria-label="Конец">
-      <button class="del" data-act="del" data-i="${i}" aria-label="Удалить">×</button>
-      <input type="text" value="${esc(b.t)}" data-f="t" aria-label="Название"></div>`).join("")}</div>
-    ${warn ? `<div class="warn">${esc(warn)}</div>` : ""}
-    <div class="btns"><button class="btn" data-act="add">+ Добавить</button>
-      <button class="btn primary" data-act="saveTpl">Сохранить</button>
-      <button class="btn" data-act="resetTpl">Вернуть исходный</button></div>
-    <p class="muted small" style="margin:10px 0 0">Время уведомлений меняется в Календаре iPhone: событие → Изменить → «Сохранить для будущих событий».</p></div>`;
+      `<button data-tpl="${id}" aria-pressed="${id === edTpl}">${ic(TYPE_ICON[id] || "dot", 18)}${esc(x.name)}</button>`).join("")}</div>
+    <div id="edlist" style="margin-top:6px">${t.blocks.map((b, i) => `<div class="trow" data-i="${i}">
+      <div class="tm"><input type="time" value="${b.s}" data-f="s" aria-label="Начало"><span class="dash">–</span>
+        <input type="time" value="${b.e}" data-f="e" aria-label="Конец">
+        <button class="xs" data-act="del" data-i="${i}" aria-label="Удалить: ${esc(cleanTitle(b.t))}">${ic("x", 20)}</button></div>
+      <input class="fld" type="text" value="${esc(cleanTitle(b.t))}" data-f="t" aria-label="Название"></div>`).join("")}</div>
+    ${tplWarn ? `<div class="warn">${ic("info", 18)}<span>${esc(tplWarn)}</span></div>` : ""}
+    <button class="dashed" data-act="add">${ic("plus", 18)}Добавить пункт</button>
+    <div class="btn2"><button class="plain" data-act="resetTpl">Вернуть исходный</button><button class="ok" data-act="saveTpl">Сохранить</button></div>
+    <p class="note-s" style="margin:10px 2px 2px">Время уведомлений меняется в Календаре iPhone: событие, «Изменить», «Сохранить для будущих событий».</p></div>`;
 
-  html += `<h2><span>Резервная копия</span></h2><div class="card">
-    <p class="small" style="margin:0">Отметки, заметки и программа хранятся только на этом телефоне. Раз в неделю сохраняй копию в «Файлы».</p>
-    <div class="btns"><button class="btn primary" data-act="export">Сохранить копию</button>
-      <button class="btn" data-act="import">Восстановить из файла</button></div></div>`;
-  html += `<p class="muted small" style="margin:18px 4px">Режим · уведомления и будильник — в Календаре и «Здоровье → Сон».</p>`;
+  html += `<div class="sec"><h2>Резервная копия</h2></div><div class="card bcard">
+    <p>Отметки, заметки и программа хранятся только на этом телефоне. Раз в неделю сохраняй копию в «Файлы».</p>
+    <button class="bigbtn" data-act="export">${ic("download", 20)}Сохранить копию</button>
+    <button class="secbtn" data-act="import">${ic("upload", 18)}Восстановить из файла</button></div>`;
+  html += `<p class="note-s" style="margin-top:18px">Уведомления приходят из Календаря iPhone, будильник из «Здоровья», раздел «Сон».</p>`;
   app.innerHTML = html;
 }
 
 function readEditor() {
-  return [...document.querySelectorAll("#edlist .ed")].map(r => {
+  return [...document.querySelectorAll("#edlist .trow")].map(r => {
     const i = +r.dataset.i, old = state.templates[edTpl].blocks[i] || { id: uid(), h: "" };
     const v = f => r.querySelector(`[data-f="${f}"]`).value.trim();
     return Object.assign({}, old, { s: v("s"), e: v("e"), t: v("t") });
   });
 }
 function readExEditor(type) {
-  return [...document.querySelectorAll("#exlist .ed")].map(r => {
+  return [...document.querySelectorAll("#exlist .edrow")].map(r => {
     const i = +r.dataset.i, old = state.programs[type].items[i] || { id: uid() };
     const v = f => r.querySelector(`[data-f="${f}"]`).value.trim();
     return Object.assign({}, old, { n: v("n"), t: v("t") });
@@ -652,7 +908,7 @@ function checkBlocks(bl) {
   bl.sort((a, b) => n(a.s) - n(b.s));
   for (let i = 1; i < bl.length; i++) {
     let pe = n(bl[i - 1].e); if (pe <= n(bl[i - 1].s)) pe += 1440;
-    if (n(bl[i].s) < pe) return `Пересекаются: «${bl[i - 1].t}» и «${bl[i].t}». Сохранено, но проверь время.`;
+    if (n(bl[i].s) < pe) return `Пересекаются «${cleanTitle(bl[i - 1].t)}» и «${cleanTitle(bl[i].t)}». Сохранено, но проверь время.`;
   }
   return "";
 }
@@ -682,29 +938,29 @@ function toggleBlock(id) {
   const st = m.blocks[id] = Object.assign({}, m.blocks[id]);
   st.d = !st.d;
   const b = blocksOf(k).find(x => x.id === id);
-  let msg = "";
   if (st.d) {
     // пункт плана отмечает и связанную привычку, если она ещё пустая
     if (b && b.h && !m[b.h] && (b.h !== "tr" || HABITS.tr[plan])) {
       m[b.h] = m.light ? "min" : "done";
       if (m.plan === undefined) m.plan = plan;
     }
+    popId = id;
     const nb = nextBlock(k, id);
-    msg = `✓ ${b ? b.t : ""}` + (nb ? `\nДальше — ${nb.s} ${nb.t}` : "\nНа сегодня всё 🌙");
+    toast(b ? cleanTitle(b.t) : "Готово", nb ? `Дальше: ${nb.s} ${cleanTitle(nb.t)}` : "На сегодня всё");
   }
   save(); renderToday();
-  if (msg) toast(msg);
 }
 function toggleEx(id, type) {
   const k = viewDay, plan = planOf(k), m = editMark(k);
   m.ex = Object.assign({}, m.ex);
   const st = m.ex[id] = Object.assign({}, m.ex[id]);
   st.d = !st.d;
+  if (st.d) popId = id;
   const items = state.programs[type].items;
   if (st.d && type === plan && !m.tr && items.every(x => m.ex[x.id]?.d)) {
     m.tr = m.light ? "min" : "done";
     m.plan = plan;
-    toast("Тренировка отмечена в привычках ✓");
+    toast("Тренировка засчитана", "Отмечено в привычках");
   }
   save(); renderTrain();
 }
@@ -713,11 +969,11 @@ function toggleEx(id, type) {
 document.querySelector("nav.tabs").addEventListener("click", e => {
   const b = e.target.closest("button[data-tab]"); if (!b) return;
   if (b.dataset.tab !== tab && b.dataset.tab !== "stats" && (tab === "stats" || tab === "settings")) viewDay = todayKey();
-  tab = b.dataset.tab; trEdit = false; openBlock = null;
+  tab = b.dataset.tab; trEdit = false; openBlock = null; sheetOpen = false; tplWarn = "";
   render(); window.scrollTo(0, 0);
 });
 
-function goDay(k) { viewDay = k; openBlock = null; trType = null; trEdit = false; render(); }
+function goDay(k) { viewDay = k; openBlock = null; trType = null; trEdit = false; sheetOpen = false; render(); }
 
 app.addEventListener("click", e => {
   const el = e.target.closest("button, [data-act]"); if (!el || el.disabled) return;
@@ -729,23 +985,31 @@ app.addEventListener("click", e => {
     save(); renderToday(); return;
   }
   if (el.dataset.day) { tab = "today"; goDay(el.dataset.day); window.scrollTo(0, 0); return; }
-  if (el.dataset.tpl) { edTpl = el.dataset.tpl; renderSettings(); return; }
+  if (el.dataset.tpl) { edTpl = el.dataset.tpl; tplWarn = ""; renderSettings(); return; }
   if (el.dataset.prog) { trType = el.dataset.prog; trEdit = false; renderTrain(); return; }
   switch (act) {
     case "prev": goDay(keyOf(addDays(fromKey(viewDay), -1))); break;
     case "next": goDay(keyOf(addDays(fromKey(viewDay), 1))); break;
     case "today": goDay(todayKey()); break;
-    case "yesterday": goDay(keyOf(addDays(fromKey(todayKey()), -1))); break;
+    case "yesterday": goDay(keyOf(addDays(fromKey(todayKey()), -1))); window.scrollTo(0, 0); break;
     case "blk": toggleBlock(el.dataset.id); break;
     case "open": openBlock = openBlock === el.dataset.id ? null : el.dataset.id; focusNote = !!openBlock; renderToday(); break;
+    case "grp": {
+      const key = `${viewDay}|${el.dataset.g}`;
+      groupOpen[key] = el.getAttribute("aria-expanded") !== "true"; renderToday(); break;
+    }
     case "goTrain": tab = "train"; render(); window.scrollTo(0, 0); break;
-    case "light": { const m = editMark(viewDay); m.light = !m.light; save(); renderToday(); break; }
+    case "light": { const m = editMark(viewDay); m.light = !m.light; save(); render(); break; }
+    case "sheet": sheetOpen = true; render(); break;
+    case "sheetClose": sheetOpen = false; render(); break;
     case "share": shareText(reportText(viewDay), "Отчёт дня"); break;
-    case "ex": toggleEx(el.dataset.id, trType || (state.programs[planOf(viewDay)] ? planOf(viewDay) : "gym")); break;
+    case "ex": toggleEx(el.dataset.id, curProgType()); break;
     case "exedit": trEdit = true; renderTrain(); break;
-    case "excancel": trEdit = false; renderTrain(); break;
+    case "exstart": trEdit = true; state.programs[curProgType()].items.push({ id: uid(), n: "", t: "" }); renderTrain();
+      { const inp = document.querySelector("#exlist .edrow:last-child input"); if (inp) inp.focus(); } break;
+    case "excancel": trEdit = false; state.programs = load().programs; renderTrain(); break;
     case "exadd": case "exdel": case "exsave": {
-      const type = trType || (state.programs[planOf(viewDay)] ? planOf(viewDay) : "gym");
+      const type = curProgType();
       let items = readExEditor(type);
       if (act === "exadd") items.push({ id: uid(), n: "", t: "" });
       if (act === "exdel") items.splice(+el.dataset.i, 1);
@@ -753,7 +1017,7 @@ app.addEventListener("click", e => {
       state.programs[type].items = items;
       if (act === "exsave") { save(); toast("Программа сохранена"); }
       renderTrain();
-      if (act === "exadd") { const inp = document.querySelector("#exlist .ed:last-child input"); if (inp) inp.focus(); }
+      if (act === "exadd") { const inp = document.querySelector("#exlist .edrow:last-child input"); if (inp) inp.focus(); }
       break;
     }
     case "wprev": weekStart = addDays(weekStart, -7); renderStats(); break;
@@ -763,7 +1027,7 @@ app.addEventListener("click", e => {
     case "add": {
       const bl = readEditor(); bl.push({ id: uid(), s: "", e: "", t: "", h: "" });
       state.templates[edTpl].blocks = bl; renderSettings();
-      const inputs = document.querySelectorAll("#edlist .ed:last-child input"); if (inputs[0]) inputs[0].focus();
+      const inputs = document.querySelectorAll("#edlist .trow:last-child input"); if (inputs[0]) inputs[0].focus();
       break;
     }
     case "del": {
@@ -773,13 +1037,14 @@ app.addEventListener("click", e => {
     case "saveTpl": {
       const bl = readEditor().filter(b => b.s || b.e || b.t);
       const w = checkBlocks(bl);
-      if (w.startsWith("У каждой")) { renderSettings(w); break; }
-      state.templates[edTpl].blocks = bl; save(); renderSettings(w); if (!w) toast("Шаблон сохранён");
+      tplWarn = w;
+      if (w.startsWith("У каждой")) { renderSettings(); break; }
+      state.templates[edTpl].blocks = bl; save(); renderSettings(); if (!w) toast("Шаблон сохранён");
       break;
     }
     case "resetTpl":
       if (confirm(`Вернуть шаблон «${state.templates[edTpl].name}» к исходному?`)) {
-        state.templates[edTpl] = clone(DEFAULT_TEMPLATES[edTpl]); save(); renderSettings(); toast("Шаблон восстановлен");
+        state.templates[edTpl] = clone(DEFAULT_TEMPLATES[edTpl]); tplWarn = ""; save(); renderSettings(); toast("Шаблон восстановлен");
       }
       break;
     case "export": exportData(); break;
@@ -808,7 +1073,7 @@ app.addEventListener("change", e => {
     trType = null; save(); render(); return;
   }
   if (e.target.dataset.wd !== undefined) {
-    state.week[+e.target.dataset.wd] = e.target.value; save(); toast("Сохранено");
+    state.week[+e.target.dataset.wd] = e.target.value; save(); renderSettings(); toast("Сохранено");
   }
 });
 
@@ -832,7 +1097,7 @@ document.addEventListener("visibilitychange", () => {
   if (!document.activeElement.matches("input,textarea,select")) render();
 });
 setInterval(() => {
-  if (tab === "today" && document.visibilityState === "visible" && !document.activeElement.matches("input,textarea,select")) renderToday();
+  if (tab === "today" && !sheetOpen && document.visibilityState === "visible" && !document.activeElement.matches("input,textarea,select")) renderToday();
 }, 60000);
 
 render();
